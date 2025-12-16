@@ -1,0 +1,60 @@
+import React from 'react';
+import { Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { AppBar, Toolbar, Button, Container, Box } from '@mui/material';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Jobs from './pages/Jobs';
+import EmployerDashboard from './pages/EmployerDashboard';
+import AdminPanel from './pages/AdminPanel';
+import VerifyEmail from './pages/VerifyEmail';
+import ResetPassword from './pages/ResetPassword';
+import Messages from './pages/Messages';
+
+function App(){
+  const navigate = useNavigate();
+  const token = localStorage.getItem('token');
+  const user = JSON.parse(localStorage.getItem('user') || 'null');
+
+  const logout = () => {
+    localStorage.removeItem('token'); localStorage.removeItem('user');
+    navigate('/');
+    window.location.reload();
+  };
+
+  return (
+    <div>
+      <AppBar position="static">
+        <Toolbar>
+          <Box sx={{ flexGrow: 1 }}>
+            <Button color="inherit" component={Link} to="/">Jobs</Button>
+            {user?.role === 'employer' && <Button color="inherit" component={Link} to="/employer">Employer</Button>}
+            {user?.role === 'admin' && <Button color="inherit" component={Link} to="/admin">Admin</Button>}
+            {token && <Button color="inherit" component={Link} to="/messages">Messages</Button>}
+          </Box>
+          {!token ? (
+            <>
+              <Button color="inherit" component={Link} to="/login">Login</Button>
+              <Button color="inherit" component={Link} to="/register">Register</Button>
+            </>
+          ) : (
+            <Button color="inherit" onClick={logout}>Logout</Button>
+          )}
+        </Toolbar>
+      </AppBar>
+      <Container sx={{ mt:4 }}>
+        <Routes>
+          <Route path="/" element={<Jobs />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/employer" element={<EmployerDashboard />} />
+          <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/verify-email/:token" element={<VerifyEmail />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/messages" element={<Messages />} />
+        </Routes>
+      </Container>
+    </div>
+  );
+}
+
+export default App;
