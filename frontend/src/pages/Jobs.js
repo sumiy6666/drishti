@@ -1,28 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { authFetch } from '../api';
+import JobCard from '../components/JobCard';
 
 export default function Jobs() {
   const [jobs, setJobs] = useState([]);
-  const [q, setQ] = useState('');
-  const [page, setPage] = useState(1);
-  const [location, setLocation] = useState('');
-  const [remote, setRemote] = useState(false);
-  const [minSalary, setMinSalary] = useState('');
-  const [maxSalary, setMaxSalary] = useState('');
+  const [loading, setLoading] = useState(true);
   const [meta, setMeta] = useState({});
+  const [filters, setFilters] = useState({
+    search: '',
+    location: '',
+    type: [],
+    minSalary: 0,
+    page: 1
+  });
 
-  const token = localStorage.getItem('token');
-  const user = JSON.parse(localStorage.getItem('user') || 'null');
+  // Parse query params on initial load
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setFilters(prev => ({
+      ...prev,
+      search: params.get('search') || '',
+      location: params.get('location') || ''
+    }));
+  }, []);
 
   const fetchJobs = async () => {
+    setLoading(true);
     const params = new URLSearchParams();
-    if (q) params.append('q', q);
-    if (location) params.append('location', location);
-    if (remote) params.append('remote', 'true');
-    if (minSalary) params.append('minSalary', minSalary);
-    if (maxSalary) params.append('maxSalary', maxSalary);
-    params.append('page', page);
+    if (filters.search) params.append('q', filters.search);
+    if (filters.location) params.append('location', filters.location);
+    if (filters.type.length > 0) params.append('type', filters.type.join(','));
+    if (filters.minSalary > 0) params.append('minSalary', filters.minSalary);
+    params.append('page', filters.page);
 
     try {
       const res = await fetch((process.env.REACT_APP_API || 'http://localhost:5000') + '/api/jobs?' + params.toString(), {
@@ -33,210 +42,213 @@ export default function Jobs() {
       setMeta({ page: data.page, total: data.total, totalPages: data.totalPages });
     } catch (error) {
       console.error("Error fetching jobs:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchJobs();
-  }, [q, page, location, remote, minSalary, maxSalary]);
+  }, [filters]);
 
-  const apply = async (id) => {
-    if (!token) return alert('Login as jobseeker to apply');
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({ ...prev, [key]: value, page: 1 }));
+  };
 
-    const resumeFile = document.getElementById('resume-file')?.files?.[0];
-    let resumeUrl = '';
+  const handleTypeToggle = (type) => {
+    setFilters(prev => {
+      const newTypes = prev.type.includes(type)
+        ? prev.type.filter(t => t !== type)
+        : [...prev.type, type];
+      return { ...prev, type: newTypes, page: 1 };
+    });
+  };
 
-    if (resumeFile) {
-      try {
-        const pres = await fetch((process.env.REACT_APP_API || 'http://localhost:5000') + '/api/upload/presign', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token, 'ngrok-skip-browser-warning': 'true' },
-          body: JSON.stringify({ filename: resumeFile.name, contentType: resumeFile.type })
-        });
-        const presData = await pres.json();
-        if (!pres.ok) return alert('Could not get upload url');
-
-        await fetch(presData.uploadUrl, {
-          method: 'PUT',
-          headers: { 'Content-Type': resumeFile.type },
-          body: resumeFile
-        });
-        resumeUrl = presData.publicUrl;
-      } catch (error) {
-        console.error("Upload error:", error);
-        return alert('Error uploading resume');
-      }
-    }
-
-    const cover = prompt('Write a short cover letter (optional)');
-    if (cover === null) return; // User cancelled
-
-    try {
-      const res = await fetch((process.env.REACT_APP_API || 'http://localhost:5000') + `/api/jobs/${id}/apply`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token, 'ngrok-skip-browser-warning': 'true' },
-        body: JSON.stringify({ coverLetter: cover, resumeUrl })
-      });
-      const data = await res.json();
-      if (res.ok) alert('Applied successfully');
-      else alert(data.error || 'Error');
-    } catch (error) {
-      console.error("Apply error:", error);
-      alert('Failed to apply');
-    }
+  const handlePageChange = (newPage) => {
+    setFilters(prev => ({ ...prev, page: newPage }));
   };
 
   return (
-    <div className="min-h-screen bg-light py-10 pt-24 font-sans text-body">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-light py-10 pt-32 font-sans text-body">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
-        <div className="mb-10 text-center">
+        <div className="mb-12 text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-dark mb-4 tracking-tight">
-            Browse Opportunities
+            Find Your Next Career
           </h1>
           <p className="text-body max-w-2xl mx-auto text-lg">
-            Find your next career move in the decentralized world.
+            Browse thousands of job openings from top companies.
           </p>
-        </div>
 
-        {/* Filters */}
-        <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 mb-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            <input
-              type="text"
-              placeholder="Search by title or company..."
-              value={q}
-              onChange={e => setQ(e.target.value)}
-              className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all hover:bg-white"
-            />
-            <input
-              type="text"
-              placeholder="Location"
-              value={location}
-              onChange={e => setLocation(e.target.value)}
-              className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all hover:bg-white"
-            />
-            <div className="flex items-center gap-3 px-5 bg-gray-50 border border-gray-200 rounded-xl hover:bg-white transition-colors">
-              <input
-                type="checkbox"
-                id="remote"
-                checked={remote}
-                onChange={e => setRemote(e.target.checked)}
-                className="w-5 h-5 text-primary bg-white border-gray-300 rounded focus:ring-primary"
-              />
-              <label htmlFor="remote" className="text-body font-medium cursor-pointer select-none">Remote Only</label>
-            </div>
-            <input
-              type="number"
-              placeholder="Min Salary (INR)"
-              value={minSalary}
-              onChange={e => setMinSalary(e.target.value)}
-              className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all hover:bg-white"
-            />
-            <input
-              type="number"
-              placeholder="Max Salary (INR)"
-              value={maxSalary}
-              onChange={e => setMaxSalary(e.target.value)}
-              className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all hover:bg-white"
-            />
-            <button
-              onClick={() => { setPage(1); fetchJobs(); }}
-              className="w-full px-5 py-3.5 bg-primary text-white font-bold rounded-xl hover:bg-blue-700 hover:shadow-lg hover:shadow-primary/20 transition-all transform hover:-translate-y-0.5"
-            >
-              Apply Filters
-            </button>
+          {/* Page Header */}
+          <div className="mb-10">
+            <h1 className="text-3xl font-bold text-secondary mb-2">Find Your Dream Job</h1>
+            <p className="text-body">Browse thousands of job openings and find the perfect fit.</p>
           </div>
-        </div>
 
-        {/* Resume Upload (Hidden/Utility) */}
-        <div className="mb-6 hidden">
-          <label className="block text-sm font-medium text-gray-400 mb-2">Upload Resume (Optional for application)</label>
-          <input
-            id="resume-file"
-            type="file"
-            className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
-          />
-        </div>
+          <div className="flex flex-col lg:flex-row gap-8">
 
-        {/* Job List */}
-        <div className="space-y-6">
-          {jobs.length === 0 ? (
-            <div className="text-center py-24 bg-white rounded-3xl border border-gray-100 shadow-sm">
-              <div className="text-6xl mb-4 opacity-50">🔍</div>
-              <p className="text-body text-lg">No jobs found matching your criteria.</p>
-            </div>
-          ) : (
-            jobs.map(j => (
-              <div key={j._id} className="bg-white border border-gray-100 rounded-2xl p-8 hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-300 group hover:-translate-y-1 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-1 h-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            {/* Sidebar Filters */}
+            <div className="w-full lg:w-1/4 space-y-8">
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <h3 className="font-bold text-secondary text-lg mb-6">Search Filter</h3>
 
-                <div className="flex flex-col md:flex-row justify-between items-start gap-6">
-                  <div className="flex-1">
-                    <Link to={`/jobs/${j._id}`} className="group-hover:text-primary transition-colors">
-                      <h3 className="text-2xl font-bold text-dark mb-2">{j.title}</h3>
-                    </Link>
-                    <p className="text-body font-medium text-lg mb-4">{j.company}</p>
-
-                    <div className="flex flex-wrap gap-3 text-sm text-body mb-6">
-                      <span className="flex items-center gap-1.5 bg-light px-4 py-1.5 rounded-full border border-gray-100 font-medium">
-                        📍 {j.location}
-                      </span>
-                      <span className="flex items-center gap-1.5 bg-light px-4 py-1.5 rounded-full border border-gray-100 font-medium">
-                        💰 {j.salaryText || 'Salary not specified'}
-                      </span>
-                      <span className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border ${j.remote ? 'bg-green-50 text-secondary border-green-100' : 'bg-blue-50 text-primary border-blue-100'}`}>
-                        {j.remote ? 'Remote' : 'On-site'}
-                      </span>
-                    </div>
-
-                    <p className="text-body line-clamp-2 leading-relaxed max-w-3xl">{j.description}</p>
-                  </div>
-
-                  <div className="flex flex-row md:flex-col gap-4 w-full md:w-auto mt-4 md:mt-0 min-w-[140px]">
-                    <Link
-                      to={`/jobs/${j._id}`}
-                      className="flex-1 md:flex-none px-6 py-3 border border-gray-200 text-dark text-center font-bold rounded-xl hover:bg-light hover:border-gray-300 transition-all"
-                    >
-                      Details
-                    </Link>
-                    {user?.role === 'jobseeker' && (
-                      <button
-                        onClick={() => apply(j._id)}
-                        className="flex-1 md:flex-none px-6 py-3 bg-primary text-white text-center font-bold rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-primary/20"
-                      >
-                        Apply
-                      </button>
-                    )}
+                {/* Search Input */}
+                <div className="mb-6">
+                  <label className="block text-sm font-bold text-secondary mb-2">Keywords</label>
+                  <div className="relative">
+                    <i className="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input
+                      type="text"
+                      placeholder="Job title, skills..."
+                      className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm"
+                      value={filters.search}
+                      onChange={(e) => handleFilterChange('search', e.target.value)}
+                    />
                   </div>
                 </div>
+
+                {/* Location Input */}
+                <div className="mb-6">
+                  <label className="block text-sm font-bold text-secondary mb-2">Location</label>
+                  <div className="relative">
+                    <i className="fas fa-map-marker-alt absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input
+                      type="text"
+                      placeholder="City or Zip Code"
+                      className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm"
+                      value={filters.location}
+                      onChange={(e) => handleFilterChange('location', e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                {/* Job Type Checkboxes */}
+                <div className="mb-6">
+                  <label className="block text-sm font-bold text-secondary mb-3">Job Type</label>
+                  <div className="space-y-2">
+                    {['Full Time', 'Part Time', 'Remote', 'Contract', 'Internship'].map(type => (
+                      <label key={type} className="flex items-center gap-3 cursor-pointer group">
+                        <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${filters.type.includes(type) ? 'bg-primary border-primary' : 'border-gray-300 bg-white group-hover:border-primary'}`}>
+                          {filters.type.includes(type) && <i className="fas fa-check text-white text-xs"></i>}
+                        </div>
+                        <input
+                          type="checkbox"
+                          className="hidden"
+                          checked={filters.type.includes(type)}
+                          onChange={() => handleTypeToggle(type)}
+                        />
+                        <span className="text-body text-sm group-hover:text-primary transition-colors">{type}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Salary Range */}
+                <div>
+                  <label className="block text-sm font-bold text-secondary mb-3">Minimum Salary</label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="200000"
+                    step="5000"
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary"
+                    value={filters.minSalary || 0}
+                    onChange={(e) => handleFilterChange('minSalary', parseInt(e.target.value))}
+                  />
+                  <div className="flex justify-between text-xs text-body mt-2 font-medium">
+                    <span>${(filters.minSalary || 0).toLocaleString()}</span>
+                    <span>$200k+</span>
+                  </div>
+                </div>
+
               </div>
-            ))
-          )}
-        </div>
+            </div>
 
-        {/* Pagination */}
-        <div className="mt-16 flex justify-center items-center gap-6">
-          <button
-            onClick={() => setPage(p => Math.max(1, p - 1))}
-            disabled={page === 1}
-            className="px-6 py-3 border border-gray-200 rounded-xl text-body font-medium disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white hover:shadow-sm transition-all bg-white"
-          >
-            Previous
-          </button>
-          <span className="text-gray-400 font-medium">
-            Page <span className="text-dark font-bold">{meta.page || 1}</span> of <span className="text-dark font-bold">{meta.totalPages || 1}</span>
-          </span>
-          <button
-            onClick={() => setPage(p => p + 1)}
-            disabled={page >= (meta.totalPages || 1)}
-            className="px-6 py-3 border border-gray-200 rounded-xl text-body font-medium disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white hover:shadow-sm transition-all bg-white"
-          >
-            Next
-          </button>
-        </div>
+            {/* Job List */}
+            <div className="w-full lg:w-3/4">
+              {/* Sort/Count Header */}
+              <div className="flex justify-between items-center mb-6 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                <p className="text-body text-sm">Showing <span className="font-bold text-secondary">{jobs.length}</span> Jobs</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-body">Sort by:</span>
+                  <select className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-primary">
+                    <option>Newest</option>
+                    <option>Oldest</option>
+                    <option>Salary (High-Low)</option>
+                  </select>
+                </div>
+              </div>
 
+              {loading ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 animate-pulse h-40"></div>
+                  ))}
+                </div>
+              ) : jobs.length > 0 ? (
+                <div className="grid grid-cols-1 gap-4">
+                  {jobs.map(job => (
+                    <JobCard
+                      key={job._id}
+                      job={{
+                        id: job._id,
+                        title: job.title,
+                        company: job.company,
+                        location: job.location,
+                        type: job.remote ? 'Remote' : 'Full Time',
+                        salary: job.salaryText || (job.salaryMin ? `₹${job.salaryMin} - ₹${job.salaryMax}` : null),
+                        logo: job.company ? job.company.charAt(0).toUpperCase() : 'C',
+                        postedAt: 'Recently'
+                      }}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-20 bg-white rounded-2xl border border-gray-100">
+                  <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400 text-2xl">
+                    <i className="fas fa-search"></i>
+                  </div>
+                  <h3 className="text-lg font-bold text-secondary mb-2">No Jobs Found</h3>
+                  <p className="text-body">Try adjusting your search filters.</p>
+                </div>
+              )}
+
+              {/* Pagination */}
+              {/* Pagination */}
+              {meta.totalPages > 1 && (
+                <div className="mt-10 flex justify-center gap-2">
+                  <button
+                    onClick={() => handlePageChange(Math.max(1, filters.page - 1))}
+                    disabled={filters.page === 1}
+                    className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-body hover:bg-primary hover:text-white hover:border-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <i className="fas fa-chevron-left"></i>
+                  </button>
+
+                  {[...Array(meta.totalPages)].map((_, i) => (
+                    <button
+                      key={i + 1}
+                      onClick={() => handlePageChange(i + 1)}
+                      className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${filters.page === i + 1 ? 'bg-primary text-white shadow-lg shadow-primary/30' : 'border border-gray-200 text-body hover:bg-primary hover:text-white hover:border-primary'}`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+
+                  <button
+                    onClick={() => handlePageChange(Math.min(meta.totalPages, filters.page + 1))}
+                    disabled={filters.page === meta.totalPages}
+                    className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-body hover:bg-primary hover:text-white hover:border-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <i className="fas fa-chevron-right"></i>
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

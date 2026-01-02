@@ -4,13 +4,22 @@ const User = require('../models/User');
 
 exports.list = async (req, res) => {
   try {
+    console.log("Jobs List API Hit");
+    console.log("Query Params:", req.query);
+
     const { q, location, skills, page = 1, limit = 10, minSalary, maxSalary, remote } = req.query;
-    const filter = { status: 'open' };
+    // const filter = { status: 'open' }; // Temporarily removed for debugging
+    const filter = {};
     if (location) filter.location = location;
     if (skills) filter.skills = { $in: skills.split(',') };
     if (remote !== undefined) filter.remote = remote === 'true';
     if (minSalary) filter.salaryMin = { $gte: parseInt(minSalary) };
     if (maxSalary) filter.salaryMax = { $lte: parseInt(maxSalary) };
+
+    console.log("Constructed Filter:", JSON.stringify(filter));
+
+    const allJobsCount = await Job.countDocuments({});
+    console.log("Total Jobs in DB (Unfiltered):", allJobsCount);
 
     let query;
     if (q) {
@@ -19,6 +28,8 @@ exports.list = async (req, res) => {
       query = Job.find(filter);
     }
     const total = await Job.countDocuments(query.getFilter ? query.getFilter() : query);
+    console.log("Total Jobs Found:", total);
+
     const jobs = await query
       .skip((page - 1) * limit)
       .limit(parseInt(limit))

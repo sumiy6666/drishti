@@ -53,8 +53,7 @@ export default function JobDetails() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token,
-                    'ngrok-skip-browser-warning': 'true'
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ coverLetter, resumeUrl })
             });
@@ -67,7 +66,7 @@ export default function JobDetails() {
             setResumeUrl('');
         } catch (err) {
             setApplicationStatus('error');
-            alert(err.message);
+            // alert(err.message);
         } finally {
             setApplying(false);
         }
@@ -77,48 +76,62 @@ export default function JobDetails() {
     if (error || !job) return <div className="min-h-screen flex items-center justify-center bg-light text-red-500 font-medium">Error: {error || 'Job not found'}</div>;
 
     return (
-        <div className="min-h-screen bg-light py-12 px-4 sm:px-6 lg:px-8 pt-24 font-sans text-body">
-            <div className="max-w-4xl mx-auto">
+        <div className="min-h-screen bg-light py-12 px-4 sm:px-6 lg:px-8 pt-32 font-sans text-body">
+            <div className="max-w-5xl mx-auto">
 
                 {/* Back Button */}
                 <Link to="/jobs" className="inline-flex items-center text-body hover:text-primary mb-8 transition-colors group font-medium">
-                    <span className="mr-2 group-hover:-translate-x-1 transition-transform">←</span> Back to Jobs
+                    <i className="fas fa-arrow-left mr-2 group-hover:-translate-x-1 transition-transform"></i> Back to Jobs
                 </Link>
 
                 {/* Header Card */}
-                <div className="bg-white rounded-2xl p-10 mb-8 shadow-sm border border-gray-100">
-                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-8">
-                        <div>
-                            <h1 className="text-4xl font-bold text-dark mb-4 tracking-tight">{job.title}</h1>
-                            <div className="flex items-center gap-3 text-xl text-body font-medium mb-8">
-                                <span className="text-primary font-semibold">{job.company}</span>
-                                <span className="text-gray-300">•</span>
-                                <span>{job.location}</span>
+                <div className="bg-white rounded-2xl p-8 md:p-10 mb-8 shadow-sm border border-gray-100 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full pointer-events-none" />
+
+                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-8 relative z-10">
+                        <div className="flex-1">
+                            <div className="flex items-center gap-4 mb-4">
+                                <div className="w-16 h-16 bg-white border border-gray-100 rounded-xl flex items-center justify-center text-3xl font-bold text-primary shadow-sm">
+                                    {job.company ? job.company.charAt(0).toUpperCase() : 'C'}
+                                </div>
+                                <div>
+                                    <h1 className="text-3xl md:text-4xl font-bold text-dark tracking-tight mb-1">{job.title}</h1>
+                                    <div className="flex items-center gap-2 text-body">
+                                        <span className="font-semibold text-primary">{job.company}</span>
+                                        <span className="w-1 h-1 rounded-full bg-gray-300"></span>
+                                        <span>{job.postedAt || 'Recently Posted'}</span>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div className="flex flex-wrap gap-3">
-                                <span className="px-5 py-2 bg-blue-50 text-primary border border-blue-100 rounded-full text-sm font-bold">
-                                    {job.remote ? 'Remote' : 'On-site'}
+                            <div className="flex flex-wrap gap-3 mt-6">
+                                <span className="flex items-center gap-2 px-4 py-2 bg-gray-50 text-dark border border-gray-200 rounded-full text-sm font-medium">
+                                    <i className="fas fa-map-marker-alt text-primary"></i> {job.location}
                                 </span>
-                                <span className="px-5 py-2 bg-green-50 text-secondary border border-green-100 rounded-full text-sm font-bold">
-                                    {job.salaryText || `${job.salaryMin?.toLocaleString()} - ${job.salaryMax?.toLocaleString()}`}
+                                <span className="flex items-center gap-2 px-4 py-2 bg-gray-50 text-dark border border-gray-200 rounded-full text-sm font-medium">
+                                    <i className="fas fa-money-bill-wave text-green-600"></i> {job.salaryText || (job.salaryMin ? `${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}` : 'Competitive')}
                                 </span>
-                                <span className="px-5 py-2 bg-purple-50 text-purple-600 border border-purple-100 rounded-full text-sm font-bold">
-                                    Full-time
+                                <span className="flex items-center gap-2 px-4 py-2 bg-gray-50 text-dark border border-gray-200 rounded-full text-sm font-medium">
+                                    <i className="fas fa-briefcase text-blue-600"></i> {job.remote ? 'Remote' : 'On-site'}
                                 </span>
                             </div>
                         </div>
 
-                        {user?.role === 'jobseeker' && !applicationStatus && (
-                            <a href="#apply-section" className="px-10 py-5 bg-primary text-white font-bold rounded-lg hover:bg-blue-700 transition-all shadow-lg shadow-primary/20 transform hover:-translate-y-1 text-center min-w-[200px]">
-                                Apply Now
-                            </a>
-                        )}
-                        {user?.role === 'employer' && user._id === job.employer?._id && (
-                            <Link to={`/jobs/${id}/applications`} className="px-10 py-5 bg-primary text-white font-bold rounded-lg hover:bg-blue-700 hover:shadow-lg hover:shadow-primary/20 transition-all transform hover:-translate-y-1 text-center min-w-[200px]">
-                                View Applicants
-                            </Link>
-                        )}
+                        <div className="flex flex-col gap-3 min-w-[200px]">
+                            {user?.role === 'jobseeker' && !applicationStatus && (
+                                <a href="#apply-section" className="px-8 py-4 bg-primary text-white font-bold rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-primary/20 transform hover:-translate-y-1 text-center">
+                                    Apply Now
+                                </a>
+                            )}
+                            {user?.role === 'employer' && user._id === job.employer?._id && (
+                                <Link to={`/jobs/${id}/applications`} className="px-8 py-4 bg-primary text-white font-bold rounded-xl hover:bg-blue-700 hover:shadow-lg hover:shadow-primary/20 transition-all transform hover:-translate-y-1 text-center">
+                                    View Applicants
+                                </Link>
+                            )}
+                            <button className="px-8 py-4 bg-white border border-gray-200 text-dark font-bold rounded-xl hover:bg-gray-50 transition-all text-center">
+                                Save Job
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -128,7 +141,9 @@ export default function JobDetails() {
 
                         {/* Description */}
                         <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-                            <h2 className="text-2xl font-bold text-dark mb-6">Job Description</h2>
+                            <h2 className="text-xl font-bold text-dark mb-6 flex items-center gap-2">
+                                <i className="fas fa-file-alt text-primary opacity-20"></i> Job Description
+                            </h2>
                             <div className="prose prose-lg max-w-none text-body leading-relaxed whitespace-pre-line">
                                 {job.description}
                             </div>
@@ -136,10 +151,12 @@ export default function JobDetails() {
 
                         {/* Skills */}
                         <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-                            <h2 className="text-2xl font-bold text-dark mb-6">Required Skills</h2>
+                            <h2 className="text-xl font-bold text-dark mb-6 flex items-center gap-2">
+                                <i className="fas fa-star text-primary opacity-20"></i> Required Skills
+                            </h2>
                             <div className="flex flex-wrap gap-3">
                                 {job.skills && job.skills.map((skill, index) => (
-                                    <span key={index} className="px-5 py-2.5 bg-light text-dark rounded-lg text-sm font-semibold border border-gray-200 hover:border-primary/30 transition-colors">
+                                    <span key={index} className="px-4 py-2 bg-light text-dark rounded-lg text-sm font-semibold border border-gray-200 hover:border-primary/30 transition-colors">
                                         {skill}
                                     </span>
                                 ))}
@@ -149,7 +166,7 @@ export default function JobDetails() {
                         {/* Custom Fields */}
                         {job.customFields && job.customFields.length > 0 && (
                             <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-                                <h2 className="text-2xl font-bold text-dark mb-6">Additional Details</h2>
+                                <h2 className="text-xl font-bold text-dark mb-6">Additional Details</h2>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     {job.customFields.map((field, index) => (
                                         <div key={index} className="bg-light p-5 rounded-xl border border-gray-200">
@@ -168,25 +185,41 @@ export default function JobDetails() {
 
                         {/* Company Info */}
                         <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-                            <h3 className="text-xl font-bold text-dark mb-6">About the Company</h3>
+                            <h3 className="text-lg font-bold text-dark mb-6">About the Company</h3>
                             <div className="flex items-center gap-4 mb-6">
-                                <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center text-3xl font-bold text-white shadow-lg shadow-primary/20">
-                                    {job.company.charAt(0)}
+                                <div className="w-14 h-14 bg-primary rounded-xl flex items-center justify-center text-2xl font-bold text-white shadow-lg shadow-primary/20">
+                                    {job.company ? job.company.charAt(0).toUpperCase() : 'C'}
                                 </div>
                                 <div>
                                     <h4 className="font-bold text-dark text-lg">{job.company}</h4>
-                                    <p className="text-sm text-body font-medium">Technology</p>
+                                    <Link to="#" className="text-sm text-primary hover:underline">View Profile</Link>
                                 </div>
                             </div>
-                            <p className="text-sm text-body leading-relaxed">
-                                We are a forward-thinking company dedicated to innovation and excellence. Join our team to make a real impact.
-                            </p>
+                            <div className="space-y-4 text-sm text-body">
+                                <div className="flex justify-between">
+                                    <span>Industry</span>
+                                    <span className="font-medium text-dark">Technology</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span>Company Size</span>
+                                    <span className="font-medium text-dark">50-100</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span>Founded</span>
+                                    <span className="font-medium text-dark">2015</span>
+                                </div>
+                            </div>
+                            <div className="mt-6 pt-6 border-t border-gray-100">
+                                <button className="w-full py-3 bg-light text-dark font-bold rounded-xl hover:bg-gray-200 transition-colors">
+                                    Visit Website
+                                </button>
+                            </div>
                         </div>
 
                         {/* Application Form */}
                         {user?.role === 'jobseeker' && (
                             <div id="apply-section" className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-                                <h3 className="text-xl font-bold text-dark mb-6">Apply for this Job</h3>
+                                <h3 className="text-lg font-bold text-dark mb-6">Apply for this Job</h3>
 
                                 {applicationStatus === 'success' ? (
                                     <div className="bg-green-50 border border-green-100 text-secondary p-8 rounded-xl text-center">
@@ -195,14 +228,14 @@ export default function JobDetails() {
                                         <p className="text-sm opacity-80">Good luck! You can track this in "My Applications".</p>
                                     </div>
                                 ) : (
-                                    <form onSubmit={handleApply} className="space-y-6">
+                                    <form onSubmit={handleApply} className="space-y-5">
                                         <div>
                                             <label className="block text-sm font-bold text-dark mb-2">Resume URL</label>
                                             <input
                                                 type="url"
                                                 required
-                                                placeholder="Link to your resume (Drive, LinkedIn...)"
-                                                className="w-full px-5 py-3.5 bg-light border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all hover:bg-white"
+                                                placeholder="Link to your resume"
+                                                className="w-full px-4 py-3 bg-light border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all hover:bg-white"
                                                 value={resumeUrl}
                                                 onChange={e => setResumeUrl(e.target.value)}
                                             />
@@ -212,7 +245,7 @@ export default function JobDetails() {
                                             <textarea
                                                 rows="4"
                                                 placeholder="Why are you a good fit?"
-                                                className="w-full px-5 py-3.5 bg-light border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all hover:bg-white"
+                                                className="w-full px-4 py-3 bg-light border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all hover:bg-white"
                                                 value={coverLetter}
                                                 onChange={e => setCoverLetter(e.target.value)}
                                             ></textarea>
@@ -240,7 +273,6 @@ export default function JobDetails() {
 
                     </div>
                 </div>
-
             </div>
         </div>
     );

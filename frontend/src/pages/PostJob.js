@@ -73,100 +73,100 @@ export default function PostJob() {
     };
 
     return (
-        <div className="min-h-screen bg-[#0a0a0a] py-12 px-4 sm:px-6 lg:px-8 pt-24 text-white relative overflow-hidden">
-            {/* Background Gradients */}
+        <div className="min-h-screen bg-light py-12 px-4 sm:px-6 lg:px-8 pt-32 text-body relative overflow-hidden">
+            {/* Background Shapes */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
-                <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-600/10 rounded-full blur-[120px]" />
-                <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/10 rounded-full blur-[120px]" />
+                <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px]" />
+                <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/5 rounded-full blur-[120px]" />
             </div>
 
-            <div className="max-w-3xl mx-auto relative z-10">
-                <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-3xl shadow-2xl overflow-hidden">
-                    <div className="bg-black/20 px-8 py-6 border-b border-white/10">
-                        <h1 className="text-2xl font-bold text-white">Post a New Job</h1>
-                        <p className="text-gray-400 mt-1">Create a new opportunity for talent.</p>
+            <div className="max-w-4xl mx-auto relative z-10">
+                <div className="bg-white rounded-3xl shadow-card border border-gray-100 overflow-hidden">
+                    <div className="bg-gray-50 px-8 py-6 border-b border-gray-100">
+                        <h1 className="text-2xl font-bold text-dark">Post a New Job</h1>
+                        <p className="text-secondary mt-1 font-medium">Create a new opportunity for talent.</p>
                     </div>
 
                     <form onSubmit={post} className="p-8 space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="md:col-span-2">
-                                <label className="block text-sm font-medium text-gray-400 mb-2">Job Title</label>
+                                <label className="block text-sm font-bold text-dark mb-2">Job Title</label>
                                 <input
                                     type="text"
                                     value={title}
                                     onChange={e => setTitle(e.target.value)}
                                     placeholder="e.g. Senior React Developer"
-                                    className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                    className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all hover:bg-white"
                                     required
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-2">Company Name</label>
+                                <label className="block text-sm font-bold text-dark mb-2">Company Name</label>
                                 <input
                                     type="text"
                                     value={company}
                                     onChange={e => setCompany(e.target.value)}
                                     placeholder="e.g. Tech Corp"
-                                    className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                    className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all hover:bg-white"
                                     required
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-2">Location</label>
+                                <label className="block text-sm font-bold text-dark mb-2">Location</label>
                                 <input
                                     type="text"
                                     value={location}
                                     onChange={e => setLocation(e.target.value)}
                                     placeholder="e.g. New York, NY"
-                                    className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                    className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all hover:bg-white"
                                     required
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-2">Min Salary</label>
+                                <label className="block text-sm font-bold text-dark mb-2">Min Salary</label>
                                 <input
                                     type="number"
                                     value={salaryMin}
                                     onChange={e => setSalaryMin(e.target.value)}
                                     placeholder="Min"
-                                    className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                    className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all hover:bg-white"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-2">Max Salary</label>
+                                <label className="block text-sm font-bold text-dark mb-2">Max Salary</label>
                                 <input
                                     type="number"
                                     value={salaryMax}
                                     onChange={e => setSalaryMax(e.target.value)}
                                     placeholder="Max"
-                                    className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                    className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all hover:bg-white"
                                 />
                             </div>
 
                             <div className="md:col-span-2">
-                                <label className="block text-sm font-medium text-gray-400 mb-2">Required Skills (comma separated)</label>
+                                <label className="block text-sm font-bold text-dark mb-2">Required Skills (comma separated)</label>
                                 <input
                                     type="text"
                                     value={skills}
                                     onChange={e => setSkills(e.target.value)}
                                     placeholder="React, Node.js, MongoDB"
-                                    className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                    className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all hover:bg-white"
                                 />
                             </div>
 
                             <div className="md:col-span-2">
                                 <div className="flex justify-between items-center mb-2">
-                                    <label className="block text-sm font-medium text-gray-400">Description</label>
+                                    <label className="block text-sm font-bold text-dark">Description</label>
                                     <button
                                         type="button"
                                         onClick={handleSmartSuggest}
-                                        className="text-xs flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full text-white font-bold hover:shadow-lg hover:shadow-blue-500/25 transition-all"
+                                        className="text-xs flex items-center gap-1 px-3 py-1.5 bg-primary/10 text-primary rounded-full font-bold hover:bg-primary/20 transition-all"
                                     >
-                                        ✨ Smart Suggest
+                                        <i className="fas fa-magic"></i> Smart Suggest
                                     </button>
                                 </div>
                                 <textarea
@@ -174,20 +174,20 @@ export default function PostJob() {
                                     value={desc}
                                     onChange={e => setDesc(e.target.value)}
                                     placeholder="Job details, requirements, benefits..."
-                                    className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                    className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all hover:bg-white"
                                     required
                                 />
                             </div>
                         </div>
 
                         {/* Custom Fields Section */}
-                        <div className="pt-6 border-t border-white/10">
+                        <div className="pt-6 border-t border-gray-100">
                             <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-bold text-white">Additional Details</h3>
+                                <h3 className="text-lg font-bold text-dark">Additional Details</h3>
                                 <button
                                     type="button"
                                     onClick={addField}
-                                    className="px-4 py-2 bg-white/5 text-blue-400 text-sm font-bold rounded-xl hover:bg-white/10 transition-colors border border-white/5"
+                                    className="px-4 py-2 bg-gray-50 text-primary text-sm font-bold rounded-xl hover:bg-gray-100 transition-colors border border-gray-200"
                                 >
                                     + Add Field
                                 </button>
@@ -195,14 +195,14 @@ export default function PostJob() {
 
                             <div className="space-y-3">
                                 {customFields.map((field, index) => (
-                                    <div key={index} className="flex gap-3 items-start animate-fade-in">
+                                    <div key={index} className="flex gap-3 items-start animate-fade-in-up">
                                         <div className="flex-1">
                                             <input
                                                 type="text"
                                                 value={field.label}
                                                 onChange={e => handleFieldChange(index, 'label', e.target.value)}
                                                 placeholder="Label (e.g. Department)"
-                                                className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
+                                                className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all hover:bg-white text-sm"
                                             />
                                         </div>
                                         <div className="flex-1">
@@ -211,36 +211,36 @@ export default function PostJob() {
                                                 value={field.value}
                                                 onChange={e => handleFieldChange(index, 'value', e.target.value)}
                                                 placeholder="Value (e.g. Engineering)"
-                                                className="w-full px-4 py-3 bg-black/40 border border-white/10 rounded-xl text-white placeholder-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
+                                                className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all hover:bg-white text-sm"
                                             />
                                         </div>
                                         <button
                                             type="button"
                                             onClick={() => removeField(index)}
-                                            className="p-3 text-red-400 hover:bg-red-500/10 rounded-xl transition-colors border border-transparent hover:border-red-500/20"
+                                            className="p-3.5 text-red-400 hover:bg-red-50 rounded-xl transition-colors border border-transparent hover:border-red-100"
                                             title="Remove field"
                                         >
-                                            ✕
+                                            <i className="fas fa-times"></i>
                                         </button>
                                     </div>
                                 ))}
                                 {customFields.length === 0 && (
-                                    <p className="text-sm text-gray-500 italic">No additional details added.</p>
+                                    <p className="text-sm text-gray-400 italic">No additional details added.</p>
                                 )}
                             </div>
                         </div>
 
-                        <div className="pt-6 border-t border-white/10 flex justify-end gap-4">
+                        <div className="pt-6 border-t border-gray-100 flex justify-end gap-4">
                             <button
                                 type="button"
                                 onClick={() => navigate('/employer')}
-                                className="px-6 py-3 text-gray-400 font-medium hover:text-white transition-colors"
+                                className="px-6 py-3 text-body font-bold hover:text-dark transition-colors"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
-                                className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-xl hover:shadow-lg hover:shadow-blue-500/25 transition-all transform hover:-translate-y-0.5"
+                                className="px-8 py-3 bg-primary text-white font-bold rounded-xl hover:bg-blue-700 transition-all shadow-button hover:-translate-y-0.5"
                             >
                                 Post Job
                             </button>
