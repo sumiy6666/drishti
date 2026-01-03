@@ -12,5 +12,6 @@ router.post('/reset/:token', authCtrl.resetPassword);
 // Middleware for protected routes
 const authMiddleware = require('../middleware/auth');
 router.put('/profile', authMiddleware.verify, authCtrl.updateProfile);
+router.get('/profile/:id', authCtrl.getPublicProfile);
 
 module.exports = router;

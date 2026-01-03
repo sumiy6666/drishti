@@ -6,6 +6,10 @@ export default function Home() {
   const [featuredJobs, setFeaturedJobs] = useState([]);
   const navigate = useNavigate();
 
+  const userStr = localStorage.getItem('user');
+  const user = userStr ? JSON.parse(userStr) : null;
+  const isEmployer = user?.role === 'employer';
+
   // Mock data for initial render
   useEffect(() => {
     setFeaturedJobs([
@@ -38,20 +42,37 @@ export default function Home() {
             {/* Left Content */}
             <div className="space-y-8">
               <div className="inline-block px-4 py-2 bg-blue-50 text-primary font-bold rounded-full text-sm tracking-wide uppercase">
-                #1 Job Board for Hiring
+                {isEmployer ? '#1 Platform for Hiring' : '#1 Job Board for Hiring'}
               </div>
               <h1 className="text-5xl md:text-7xl font-bold text-secondary leading-tight">
-                Give a head <br />
-                start to your <br />
-                <span className="text-primary relative">
-                  Career
-                  <svg className="absolute w-full h-3 -bottom-1 left-0 text-accent opacity-50" viewBox="0 0 100 10" preserveAspectRatio="none">
-                    <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="8" fill="none" />
-                  </svg>
-                </span>
+                {isEmployer ? (
+                  <>
+                    Hire the <br />
+                    Best <span className="text-primary relative">Talent
+                      <svg className="absolute w-full h-3 -bottom-1 left-0 text-accent opacity-50" viewBox="0 0 100 10" preserveAspectRatio="none">
+                        <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="8" fill="none" />
+                      </svg>
+                    </span> <br />
+                    Fast
+                  </>
+                ) : (
+                  <>
+                    Give a head <br />
+                    start to your <br />
+                    <span className="text-primary relative">
+                      Career
+                      <svg className="absolute w-full h-3 -bottom-1 left-0 text-accent opacity-50" viewBox="0 0 100 10" preserveAspectRatio="none">
+                        <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="8" fill="none" />
+                      </svg>
+                    </span>
+                  </>
+                )}
               </h1>
               <p className="text-lg text-body leading-relaxed max-w-lg">
-                Find the perfect job that fits your life. We have thousands of opportunities waiting for you.
+                {isEmployer
+                  ? "Connect with thousands of skilled professionals ready to join your team. Post jobs and find the perfect match today."
+                  : "Find the perfect job that fits your life. We have thousands of opportunities waiting for you."
+                }
               </p>
 
               <div className="bg-white p-3 rounded-full shadow-xl shadow-gray-200/50 border border-gray-100 flex items-center max-w-xl">
@@ -59,7 +80,7 @@ export default function Home() {
                   <i className="fas fa-search text-gray-400 mr-3"></i>
                   <input
                     type="text"
-                    placeholder="Job title or keyword"
+                    placeholder={isEmployer ? "Search candidates by skill..." : "Job title or keyword"}
                     className="w-full bg-transparent outline-none text-secondary placeholder-gray-400"
                   />
                 </div>
@@ -72,7 +93,7 @@ export default function Home() {
                   />
                 </div>
                 <button
-                  onClick={() => navigate('/jobs')}
+                  onClick={() => navigate(isEmployer ? '/candidates' : '/jobs')}
                   className="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center hover:bg-blue-600 transition-all shadow-button hover:scale-105"
                 >
                   <i className="fas fa-search"></i>
@@ -95,8 +116,11 @@ export default function Home() {
             <div className="relative hidden lg:block">
               <div className="relative z-10">
                 <img
-                  src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                  alt="Professional Woman"
+                  src={isEmployer
+                    ? "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                    : "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                  }
+                  alt="Professional"
                   className="rounded-3xl shadow-2xl w-full max-w-md mx-auto object-cover h-[600px]"
                 />
 
@@ -107,8 +131,8 @@ export default function Home() {
                       <i className="fas fa-check"></i>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-400">Success Rate</p>
-                      <p className="font-bold text-secondary">98% Hired</p>
+                      <p className="text-xs text-gray-400">{isEmployer ? "Candidates" : "Success Rate"}</p>
+                      <p className="font-bold text-secondary">{isEmployer ? "Verified" : "98% Hired"}</p>
                     </div>
                   </div>
                 </div>
@@ -139,7 +163,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-secondary mb-4">Popular Categories</h2>
-            <p className="text-body max-w-2xl mx-auto">Browse jobs by category to find the perfect fit for your skills.</p>
+            <p className="text-body max-w-2xl mx-auto">Browse {isEmployer ? "candidates" : "jobs"} by category to find the perfect fit.</p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -149,33 +173,35 @@ export default function Home() {
                   <i className={`fas ${cat.icon}`}></i>
                 </div>
                 <h3 className="font-bold text-secondary text-lg mb-2 group-hover:text-primary transition-colors">{cat.name}</h3>
-                <p className="text-sm text-gray-400">{cat.count} Jobs</p>
+                <p className="text-sm text-gray-400">{cat.count} {isEmployer ? "Candidates" : "Jobs"}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Featured Jobs Section */}
-      <section className="py-24 bg-light-blue/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-secondary mb-4">Featured Jobs</h2>
-              <p className="text-body max-w-2xl">Hand-picked jobs just for you.</p>
+      {/* Featured Jobs Section - Only for Job Seekers */}
+      {!isEmployer && (
+        <section className="py-24 bg-light-blue/30">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
+              <div>
+                <h2 className="text-3xl md:text-4xl font-bold text-secondary mb-4">Featured Jobs</h2>
+                <p className="text-body max-w-2xl">Hand-picked jobs just for you.</p>
+              </div>
+              <Link to="/jobs" className="px-6 py-3 border border-gray-200 rounded-full text-secondary font-bold hover:bg-white hover:shadow-sm transition-all">
+                View All Jobs <i className="fas fa-arrow-right ml-2"></i>
+              </Link>
             </div>
-            <Link to="/jobs" className="px-6 py-3 border border-gray-200 rounded-full text-secondary font-bold hover:bg-white hover:shadow-sm transition-all">
-              View All Jobs <i className="fas fa-arrow-right ml-2"></i>
-            </Link>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {featuredJobs.map((job) => (
-              <JobCard key={job.id} job={job} />
-            ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {featuredJobs.map((job) => (
+                <JobCard key={job.id} job={job} />
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* CTA Section */}
       <section className="py-24 bg-light-blue relative overflow-hidden">
@@ -186,9 +212,11 @@ export default function Home() {
             Join thousands of professionals who have found their dream jobs through Ogeko.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/register" className="px-10 py-4 bg-primary text-white font-bold rounded-full hover:bg-green-600 transition-all shadow-lg shadow-primary/30 hover:-translate-y-1">
-              Get Started Now
-            </Link>
+            {!user && (
+              <Link to="/register" className="px-10 py-4 bg-primary text-white font-bold rounded-full hover:bg-green-600 transition-all shadow-lg shadow-primary/30 hover:-translate-y-1">
+                Get Started Now
+              </Link>
+            )}
             <Link to="/contact" className="px-10 py-4 bg-white text-dark border border-gray-200 font-bold rounded-full hover:bg-gray-50 transition-all hover:-translate-y-1">
               Contact Us
             </Link>

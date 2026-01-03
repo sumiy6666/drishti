@@ -27,7 +27,8 @@ const UserSchema = new Schema({
   portfolio: { type: String },
   resume: { type: String },
   verified: { type: Boolean, default: false },
-  savedSearches: [SavedSearchSchema]
+  savedSearches: [SavedSearchSchema],
+  savedJobs: [{ type: Schema.Types.ObjectId, ref: 'Job' }]
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', UserSchema);

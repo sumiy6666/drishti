@@ -46,9 +46,9 @@ export default function Login() {
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2 mb-8 group">
             <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-primary/30 group-hover:scale-110 transition-transform">
-              <span className="transform -rotate-12">O</span>
+              <span className="transform -rotate-12">K</span>
             </div>
-            <span className="text-3xl font-bold text-dark tracking-tight">Ogeko</span>
+            <span className="text-3xl font-bold text-dark tracking-tight">Konnectt</span>
           </Link>
           <h2 className="text-3xl font-bold text-dark mb-2">Welcome Back</h2>
           <p className="text-body">Sign in to continue your journey.</p>

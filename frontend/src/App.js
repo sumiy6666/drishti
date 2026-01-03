@@ -7,6 +7,9 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import Jobs from './pages/Jobs'; // existing
 import EmployerDashboard from './pages/EmployerDashboard';
+import CompanyProfile from './pages/CompanyProfile';
+import FindCandidates from './pages/FindCandidates';
+import CandidateProfile from './pages/CandidateProfile';
 import AdminPanel from './pages/AdminPanel';
 import MyApplications from './pages/MyApplications';
 import Profile from './pages/Profile';
@@ -26,6 +29,9 @@ export default function App() {
           <Route path="/jobs" element={<Jobs />} />
           <Route path="/jobs/:id" element={<JobDetails />} />
           <Route path="/employer" element={<EmployerDashboard />} />
+          <Route path="/candidates" element={<FindCandidates />} />
+          <Route path="/candidate/:id" element={<CandidateProfile />} />
+          <Route path="/company/:id" element={<CompanyProfile />} />
           <Route path="/post-job" element={<PostJob />} />
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/my-applications" element={<MyApplications />} />

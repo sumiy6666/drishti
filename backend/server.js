@@ -10,6 +10,7 @@ const jobRoutes = require('./routes/jobs');
 const adminRoutes = require('./routes/admin');
 const messageRoutes = require('./routes/messages');
 const uploadRoutes = require('./routes/upload');
+const candidateRoutes = require('./routes/candidates');
 
 const app = express();
 app.use(cors());
@@ -39,6 +40,7 @@ app.use('/api/jobs', jobRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/candidates', candidateRoutes);
 
 app.get('/', (req, res) => res.send({ ok: true, message: 'Job Portal API running' }));
 

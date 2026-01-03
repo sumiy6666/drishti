@@ -47,6 +47,7 @@ export default function Navbar() {
             {(user?.role === 'employer' ? [
               { name: 'Home', path: '/' },
               { name: 'Dashboard', path: '/employer' },
+              { name: 'Find Candidates', path: '/candidates' },
               { name: 'Post Job', path: '/post-job' },
             ] : [
               { name: 'Home', path: '/' },
@@ -112,6 +113,7 @@ export default function Navbar() {
           {user?.role === 'employer' ? (
             <>
               <Link to="/employer" className="text-secondary font-bold py-2" onClick={() => setMobileMenuOpen(false)}>Dashboard</Link>
+              <Link to="/candidates" className="text-secondary font-bold py-2" onClick={() => setMobileMenuOpen(false)}>Find Candidates</Link>
               <Link to="/post-job" className="text-secondary font-bold py-2" onClick={() => setMobileMenuOpen(false)}>Post Job</Link>
             </>
           ) : (

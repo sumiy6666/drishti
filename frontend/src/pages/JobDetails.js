@@ -12,14 +12,29 @@ export default function JobDetails() {
     const [resumeUrl, setResumeUrl] = useState('');
     const [applicationStatus, setApplicationStatus] = useState(null); // 'success', 'error', null
 
-    const userStr = localStorage.getItem('user');
-    const user = userStr ? JSON.parse(userStr) : null;
+    // Resume Selection State
+    const [resumeOption, setResumeOption] = useState('profile'); // 'profile' | 'upload' | 'url'
+    const [uploading, setUploading] = useState(false);
+
+    // Save Job State
+    const [isSaved, setIsSaved] = useState(false);
+    const [saveLoading, setSaveLoading] = useState(false);
+
+    const [user, setUser] = useState(null);
 
     useEffect(() => {
-        if (user && user.resume) {
-            setResumeUrl(user.resume);
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            const parsedUser = JSON.parse(userStr);
+            setUser(parsedUser);
+            if (parsedUser.resume) {
+                setResumeUrl(parsedUser.resume);
+            }
+            if (parsedUser.savedJobs && parsedUser.savedJobs.includes(id)) {
+                setIsSaved(true);
+            }
         }
-    }, []);
+    }, [id]);
 
     useEffect(() => {
         const fetchJob = async () => {
@@ -39,10 +54,78 @@ export default function JobDetails() {
         fetchJob();
     }, [id]);
 
+    const handleSaveJob = async () => {
+        if (!user) {
+            navigate('/login');
+            return;
+        }
+        setSaveLoading(true);
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${process.env.REACT_APP_API || 'http://localhost:5000'}/api/jobs/${id}/save`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (!res.ok) throw new Error('Failed to save job');
+
+            const updatedSavedJobs = await res.json();
+
+            // Update local state
+            setIsSaved(!isSaved);
+
+            // Update local storage user
+            const updatedUser = { ...user, savedJobs: updatedSavedJobs };
+            setUser(updatedUser);
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+
+        } catch (err) {
+            console.error(err);
+            alert('Failed to save job');
+        } finally {
+            setSaveLoading(false);
+        }
+    };
+
+    const handleFileUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setUploading(true);
+        try {
+            const uploadData = new FormData();
+            uploadData.append('file', file);
+            const token = localStorage.getItem('token');
+
+            const uploadRes = await fetch(`${process.env.REACT_APP_API || 'http://localhost:5000'}/api/upload`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: uploadData
+            });
+
+            if (!uploadRes.ok) throw new Error('Upload failed');
+            const { url } = await uploadRes.json();
+            setResumeUrl(url);
+        } catch (error) {
+            console.error(error);
+            alert('Failed to upload resume');
+        } finally {
+            setUploading(false);
+        }
+    };
+
     const handleApply = async (e) => {
         e.preventDefault();
         if (!user) {
             navigate('/login');
+            return;
+        }
+
+        if (!resumeUrl) {
+            alert('Please provide a resume');
             return;
         }
 
@@ -63,10 +146,10 @@ export default function JobDetails() {
 
             setApplicationStatus('success');
             setCoverLetter('');
-            setResumeUrl('');
+            // Keep resumeUrl in case they want to apply to others
         } catch (err) {
             setApplicationStatus('error');
-            // alert(err.message);
+            alert(err.message);
         } finally {
             setApplying(false);
         }
@@ -128,9 +211,19 @@ export default function JobDetails() {
                                     View Applicants
                                 </Link>
                             )}
-                            <button className="px-8 py-4 bg-white border border-gray-200 text-dark font-bold rounded-xl hover:bg-gray-50 transition-all text-center">
-                                Save Job
-                            </button>
+                            {user?.role === 'jobseeker' && (
+                                <button
+                                    onClick={handleSaveJob}
+                                    disabled={saveLoading}
+                                    className={`px-8 py-4 border font-bold rounded-xl transition-all text-center flex items-center justify-center gap-2 ${isSaved
+                                        ? 'bg-primary/10 border-primary text-primary hover:bg-primary/20'
+                                        : 'bg-white border-gray-200 text-dark hover:bg-gray-50'
+                                        }`}
+                                >
+                                    <i className={`${isSaved ? 'fas' : 'far'} fa-bookmark`}></i>
+                                    {isSaved ? 'Saved' : 'Save Job'}
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -192,7 +285,9 @@ export default function JobDetails() {
                                 </div>
                                 <div>
                                     <h4 className="font-bold text-dark text-lg">{job.company}</h4>
-                                    <Link to="#" className="text-sm text-primary hover:underline">View Profile</Link>
+                                    {job.employer && (
+                                        <Link to={`/company/${job.employer._id}`} className="text-sm text-primary hover:underline">View Profile</Link>
+                                    )}
                                 </div>
                             </div>
                             <div className="space-y-4 text-sm text-body">
@@ -229,17 +324,84 @@ export default function JobDetails() {
                                     </div>
                                 ) : (
                                     <form onSubmit={handleApply} className="space-y-5">
+
+                                        {/* Resume Selection */}
                                         <div>
-                                            <label className="block text-sm font-bold text-dark mb-2">Resume URL</label>
-                                            <input
-                                                type="url"
-                                                required
-                                                placeholder="Link to your resume"
-                                                className="w-full px-4 py-3 bg-light border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all hover:bg-white"
-                                                value={resumeUrl}
-                                                onChange={e => setResumeUrl(e.target.value)}
-                                            />
+                                            <label className="block text-sm font-bold text-dark mb-3">Resume</label>
+                                            <div className="flex flex-col gap-3">
+                                                {user.resume && (
+                                                    <label className={`flex items-center p-3 border rounded-xl cursor-pointer transition-all ${resumeOption === 'profile' ? 'border-primary bg-primary/5' : 'border-gray-200 hover:bg-gray-50'}`}>
+                                                        <input
+                                                            type="radio"
+                                                            name="resumeOption"
+                                                            value="profile"
+                                                            checked={resumeOption === 'profile'}
+                                                            onChange={() => {
+                                                                setResumeOption('profile');
+                                                                setResumeUrl(user.resume);
+                                                            }}
+                                                            className="text-primary focus:ring-primary"
+                                                        />
+                                                        <span className="ml-3 font-medium text-dark">Use Profile Resume</span>
+                                                        <a href={user.resume} target="_blank" rel="noopener noreferrer" className="ml-auto text-xs text-primary hover:underline" onClick={e => e.stopPropagation()}>View</a>
+                                                    </label>
+                                                )}
+
+                                                <label className={`flex items-center p-3 border rounded-xl cursor-pointer transition-all ${resumeOption === 'upload' ? 'border-primary bg-primary/5' : 'border-gray-200 hover:bg-gray-50'}`}>
+                                                    <input
+                                                        type="radio"
+                                                        name="resumeOption"
+                                                        value="upload"
+                                                        checked={resumeOption === 'upload'}
+                                                        onChange={() => {
+                                                            setResumeOption('upload');
+                                                            setResumeUrl('');
+                                                        }}
+                                                        className="text-primary focus:ring-primary"
+                                                    />
+                                                    <span className="ml-3 font-medium text-dark">Upload New Resume</span>
+                                                </label>
+
+                                                {resumeOption === 'upload' && (
+                                                    <div className="mt-2 animate-fade-in">
+                                                        <input
+                                                            type="file"
+                                                            accept=".pdf,.doc,.docx"
+                                                            onChange={handleFileUpload}
+                                                            className="block w-full text-sm text-body file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+                                                        />
+                                                        {uploading && <p className="text-xs text-primary mt-1">Uploading...</p>}
+                                                        {resumeUrl && !uploading && <p className="text-xs text-green-600 mt-1">Resume uploaded!</p>}
+                                                    </div>
+                                                )}
+
+                                                <label className={`flex items-center p-3 border rounded-xl cursor-pointer transition-all ${resumeOption === 'url' ? 'border-primary bg-primary/5' : 'border-gray-200 hover:bg-gray-50'}`}>
+                                                    <input
+                                                        type="radio"
+                                                        name="resumeOption"
+                                                        value="url"
+                                                        checked={resumeOption === 'url'}
+                                                        onChange={() => {
+                                                            setResumeOption('url');
+                                                            setResumeUrl('');
+                                                        }}
+                                                        className="text-primary focus:ring-primary"
+                                                    />
+                                                    <span className="ml-3 font-medium text-dark">Enter URL</span>
+                                                </label>
+
+                                                {resumeOption === 'url' && (
+                                                    <input
+                                                        type="url"
+                                                        placeholder="https://..."
+                                                        className="w-full px-4 py-3 bg-light border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all hover:bg-white mt-2 animate-fade-in"
+                                                        value={resumeUrl}
+                                                        onChange={e => setResumeUrl(e.target.value)}
+                                                    />
+                                                )}
+                                            </div>
                                         </div>
+
                                         <div>
                                             <label className="block text-sm font-bold text-dark mb-2">Cover Letter</label>
                                             <textarea
@@ -252,7 +414,7 @@ export default function JobDetails() {
                                         </div>
                                         <button
                                             type="submit"
-                                            disabled={applying}
+                                            disabled={applying || (resumeOption === 'upload' && !resumeUrl)}
                                             className="w-full py-4 bg-primary text-white font-bold rounded-xl hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/20 hover:-translate-y-0.5"
                                         >
                                             {applying ? 'Sending...' : 'Submit Application'}

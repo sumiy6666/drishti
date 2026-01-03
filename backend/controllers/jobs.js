@@ -189,3 +189,22 @@ exports.getSavedSearches = async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 };
+
+exports.toggleSave = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    const jobId = req.params.id;
+
+    const index = user.savedJobs.indexOf(jobId);
+    if (index === -1) {
+      user.savedJobs.push(jobId);
+    } else {
+      user.savedJobs.splice(index, 1);
+    }
+    await user.save();
+    res.json(user.savedJobs);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
