@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { parseResume } from '../utils/resumeParser';
+import { showAlert } from '../utils/swal';
 
 export default function Profile() {
     const [user, setUser] = useState(null);
@@ -93,7 +94,7 @@ export default function Profile() {
                 linkedin: parsedData.links.find(l => l.includes('linkedin')) || prev.linkedin,
                 portfolio: parsedData.links.find(l => !l.includes('linkedin')) || prev.portfolio
             }));
-            alert('Resume uploaded and parsed successfully!');
+            showAlert('Success', 'Resume uploaded and parsed successfully!', 'success');
         } catch (error) {
             console.error('Resume upload/parse error:', error);
             let errorMessage = 'Failed to upload/parse resume. Please try again.';
@@ -105,7 +106,7 @@ export default function Profile() {
             } else if (error.name === 'MissingPDFException') {
                 errorMessage = 'Failed to parse PDF. The file might be corrupted or password protected.';
             }
-            alert(errorMessage);
+            showAlert('Error', errorMessage, 'error');
         } finally {
             setIsParsing(false);
         }
@@ -130,10 +131,10 @@ export default function Profile() {
             setUser(data.user);
             localStorage.setItem('user', JSON.stringify(data.user));
             setIsEditing(false);
-            alert('Profile updated successfully!');
+            showAlert('Success', 'Profile updated successfully!', 'success');
         } catch (error) {
             console.error(error);
-            alert('Failed to update profile. Please try again.');
+            showAlert('Error', 'Failed to update profile. Please try again.', 'error');
         }
     };
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import NotificationBell from './NotificationBell';
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -52,8 +53,7 @@ export default function Navbar() {
             ] : [
               { name: 'Home', path: '/' },
               { name: 'Find Jobs', path: '/jobs' },
-              { name: 'Companies', path: '/companies' },
-              { name: 'Blog', path: '/blog' },
+              { name: 'My Applications', path: '/my-applications' },
             ]).map((link) => (
               <Link
                 key={link.name}
@@ -71,6 +71,7 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-4">
             {user ? (
               <div className="flex items-center gap-4">
+                <NotificationBell />
                 <Link to="/profile" className="text-sm font-bold text-secondary hover:text-primary transition-colors">
                   Hi, {user.name.split(' ')[0]}
                 </Link>

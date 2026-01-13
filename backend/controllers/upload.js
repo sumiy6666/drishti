@@ -1,15 +1,40 @@
 const multer = require('multer');
+const AWS = require('aws-sdk');
+const multerS3 = require('multer-s3');
 const path = require('path');
 
-// Configure storage
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
-  }
+// Configure AWS
+AWS.config.update({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION
 });
+
+// Configure storage
+let storage;
+
+if (process.env.AWS_BUCKET_NAME && process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
+  console.log("Using S3 Storage");
+  const s3 = new AWS.S3();
+  storage = multerS3({
+    s3: s3,
+    bucket: process.env.AWS_BUCKET_NAME,
+    contentType: multerS3.AUTO_CONTENT_TYPE,
+    key: function (req, file, cb) {
+      cb(null, `resumes/${Date.now()}-${file.originalname}`);
+    }
+  });
+} else {
+  console.log("AWS Credentials missing. Falling back to Local Storage.");
+  storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'uploads/');
+    },
+    filename: function (req, file, cb) {
+      cb(null, Date.now() + '-' + file.originalname);
+    }
+  });
+}
 
 const upload = multer({
   storage,
@@ -26,13 +51,15 @@ const upload = multer({
 exports.uploadFile = (req, res) => {
   upload(req, res, (err) => {
     if (err) {
+      console.error("Upload Error:", err);
       return res.status(400).json({ error: err.message });
     }
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
-    res.json({ url: fileUrl, filename: req.file.filename });
+    // req.file.location is for S3, req.file.filename is for Local
+    const fileUrl = req.file.location || `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+    res.json({ url: fileUrl, filename: req.file.key || req.file.filename });
   });
 };

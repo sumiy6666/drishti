@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { showAlert, showConfirm } from '../utils/swal';
 
 const StatCard = ({ title, value, icon, color }) => (
   <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-md transition-shadow">
@@ -66,7 +67,8 @@ export default function AdminPanel() {
   }, []);
 
   const deleteUser = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) return;
+    const result = await showConfirm('Delete User?', 'Are you sure you want to delete this user? This action cannot be undone.');
+    if (!result.isConfirmed) return;
     try {
       const res = await fetch((process.env.REACT_APP_API || 'http://localhost:5000') + '/api/admin/users/' + id, {
         method: 'DELETE',
@@ -76,7 +78,7 @@ export default function AdminPanel() {
         setUsers(users.filter(u => u._id !== id));
         fetchData(); // Refresh stats
       } else {
-        alert('Failed to delete user');
+        showAlert('Error', 'Failed to delete user', 'error');
       }
     } catch (error) {
       console.error("Delete user error:", error);
@@ -84,7 +86,8 @@ export default function AdminPanel() {
   };
 
   const deleteJob = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this job?')) return;
+    const result = await showConfirm('Delete Job?', 'Are you sure you want to delete this job?');
+    if (!result.isConfirmed) return;
     try {
       const res = await fetch((process.env.REACT_APP_API || 'http://localhost:5000') + '/api/admin/jobs/' + id, {
         method: 'DELETE',
@@ -94,7 +97,7 @@ export default function AdminPanel() {
         setJobs(jobs.filter(j => j._id !== id));
         fetchData(); // Refresh stats
       } else {
-        alert('Failed to delete job');
+        showAlert('Error', 'Failed to delete job', 'error');
       }
     } catch (error) {
       console.error("Delete job error:", error);

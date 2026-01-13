@@ -10,8 +10,11 @@ exports.list = async (req, res) => {
     const { q, location, skills, page = 1, limit = 10, minSalary, maxSalary, remote } = req.query;
     // const filter = { status: 'open' }; // Temporarily removed for debugging
     const filter = {};
-    if (location) filter.location = location;
-    if (skills) filter.skills = { $in: skills.split(',') };
+    if (location) filter.location = { $regex: location, $options: 'i' };
+    if (skills) {
+      const skillsArray = skills.split(',').map(skill => new RegExp(skill.trim(), 'i'));
+      filter.skills = { $in: skillsArray };
+    }
     if (remote !== undefined) filter.remote = remote === 'true';
     if (minSalary) filter.salaryMin = { $gte: parseInt(minSalary) };
     if (maxSalary) filter.salaryMax = { $lte: parseInt(maxSalary) };
@@ -205,6 +208,45 @@ exports.toggleSave = async (req, res) => {
     res.json(user.savedJobs);
   } catch (err) {
     console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+const Notification = require('../models/Notification'); // Import Notification model
+
+exports.updateApplicationStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const appId = req.params.id;
+
+    if (!['applied', 'reviewing', 'rejected', 'accepted'].includes(status)) {
+      return res.status(400).json({ error: 'Invalid status' });
+    }
+
+    const app = await Application.findById(appId).populate('job');
+    if (!app) return res.status(404).json({ error: 'Application not found' });
+
+    if (app.job.employer.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    app.status = status;
+    await app.save();
+
+    // Create Notification for the Applicant
+    console.log(`Creating notification for user: ${app.applicant}`);
+    const notif = await Notification.create({
+      user: app.applicant,
+      title: 'Application Status Update',
+      message: `Your application for ${app.job.title} at ${app.job.company} has been updated to: ${status.toUpperCase()}`,
+      type: 'status_update',
+      link: '/my-applications'
+    });
+    console.log("Notification created:", notif);
+
+    res.json(app);
+  } catch (err) {
+    console.error("Error updating application status:", err);
     res.status(500).json({ error: 'Server error' });
   }
 };

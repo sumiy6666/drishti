@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { showAlert } from '../utils/swal';
 
 export default function JobApplications() {
     const { id } = useParams();
@@ -69,7 +70,7 @@ export default function JobApplications() {
             setSelectedApp(data);
         } catch (err) {
             console.error(err);
-            alert('Failed to load application details');
+            showAlert('Error', 'Failed to load application details', 'error');
             setIsModalOpen(false);
         } finally {
             setDetailsLoading(false);
@@ -79,6 +80,43 @@ export default function JobApplications() {
     const closeModal = () => {
         setIsModalOpen(false);
         setSelectedApp(null);
+    };
+
+    const handleStatusUpdate = async (newStatus) => {
+        if (!selectedApp) return;
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${apiUrl}/api/jobs/application/${selectedApp._id}/status`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                    'ngrok-skip-browser-warning': 'true'
+                },
+                body: JSON.stringify({ status: newStatus })
+            });
+
+            if (!res.ok) throw new Error('Failed to update status');
+
+            const updatedApp = await res.json();
+
+            // Update local state
+            setSelectedApp(prev => ({ ...prev, status: newStatus }));
+            setApplications(prev => prev.map(app => app._id === updatedApp._id ? { ...app, status: newStatus } : app));
+
+        } catch (err) {
+            console.error(err);
+            showAlert('Error', 'Failed to update status', 'error');
+        }
+    };
+
+    const getStatusColor = (status) => {
+        switch (status) {
+            case 'accepted': return 'bg-green-100 text-green-700 border-green-200';
+            case 'rejected': return 'bg-red-100 text-red-700 border-red-200';
+            case 'reviewing': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+            default: return 'bg-blue-100 text-blue-700 border-blue-200';
+        }
     };
 
     if (loading) return <div className="min-h-screen flex items-center justify-center bg-light text-body">Loading...</div>;
@@ -113,6 +151,11 @@ export default function JobApplications() {
                             <div key={app._id}
                                 onClick={() => handleViewDetails(app._id)}
                                 className="bg-white border border-gray-100 rounded-2xl p-6 hover:shadow-card-hover transition-all cursor-pointer group relative">
+                                <div className="absolute top-4 right-4">
+                                    <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getStatusColor(app.status || 'applied')}`}>
+                                        {(app.status || 'applied').charAt(0).toUpperCase() + (app.status || 'applied').slice(1)}
+                                    </span>
+                                </div>
                                 <div className="flex items-center gap-4 mb-4">
                                     <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xl">
                                         {app.applicant?.name?.charAt(0).toUpperCase()}
@@ -140,7 +183,7 @@ export default function JobApplications() {
                     <div className="bg-white border border-gray-100 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl relative animate-scale-in" onClick={e => e.stopPropagation()}>
 
                         {/* Close Button */}
-                        <button onClick={closeModal} className="absolute top-6 right-6 text-gray-400 hover:text-dark p-2 transition-colors">
+                        <button onClick={closeModal} className="absolute top-6 right-6 text-gray-400 hover:text-dark p-2 transition-colors z-10">
                             <i className="fas fa-times text-xl"></i>
                         </button>
 
@@ -156,8 +199,25 @@ export default function JobApplications() {
                                     <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-3xl">
                                         {selectedApp.applicant?.name?.charAt(0).toUpperCase()}
                                     </div>
-                                    <div>
-                                        <h2 className="text-3xl font-bold text-dark">{selectedApp.applicant?.name}</h2>
+                                    <div className="flex-1">
+                                        <div className="flex flex-wrap items-center gap-4 mb-2">
+                                            <h2 className="text-3xl font-bold text-dark">{selectedApp.applicant?.name}</h2>
+                                            <div className="relative group">
+                                                <select
+                                                    value={selectedApp.status || 'applied'}
+                                                    onChange={(e) => handleStatusUpdate(e.target.value)}
+                                                    className={`appearance-none pl-4 pr-10 py-2 rounded-full text-sm font-bold border cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all ${getStatusColor(selectedApp.status || 'applied')}`}
+                                                >
+                                                    <option value="applied">Applied</option>
+                                                    <option value="reviewing">Reviewing</option>
+                                                    <option value="accepted">Accepted</option>
+                                                    <option value="rejected">Rejected</option>
+                                                </select>
+                                                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-current opacity-70">
+                                                    <i className="fas fa-chevron-down text-xs"></i>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <div className="flex flex-wrap gap-4 mt-2 text-secondary font-medium text-sm">
                                             <span className="flex items-center gap-1"><i className="fas fa-envelope text-primary"></i> {selectedApp.applicant?.email}</span>
                                             {selectedApp.applicant?.phone && <span className="flex items-center gap-1"><i className="fas fa-phone text-primary"></i> {selectedApp.applicant.phone}</span>}

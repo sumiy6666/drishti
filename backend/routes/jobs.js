@@ -14,6 +14,7 @@ router.delete('/:id', auth.verify, auth.role('employer'), jobsCtrl.remove);
 router.post('/:id/apply', auth.verify, auth.role('jobseeker'), jobsCtrl.apply);
 router.post('/:id/save', auth.verify, auth.role('jobseeker'), jobsCtrl.toggleSave);
 router.get('/:id/applications', auth.verify, auth.role(['employer', 'admin']), jobsCtrl.getApplications);
+router.patch('/application/:id/status', auth.verify, auth.role(['employer', 'admin']), jobsCtrl.updateApplicationStatus);
 
 router.post('/saved-search', auth.verify, jobsCtrl.saveSearch);
 router.get('/saved-search', auth.verify, jobsCtrl.getSavedSearches);

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { generateJobDescription } from '../utils/jobTemplates';
+import { showAlert } from '../utils/swal';
 
 export default function PostJob() {
     const navigate = useNavigate();
@@ -32,14 +33,14 @@ export default function PostJob() {
     };
 
     const handleSmartSuggest = () => {
-        if (!title) return alert('Please enter a Job Title first.');
+        if (!title) return showAlert('Missing Title', 'Please enter a Job Title first.', 'warning');
         const suggestion = generateJobDescription(title, skills, company);
         setDesc(suggestion);
     };
 
     const post = async e => {
         e.preventDefault();
-        if (!token) return alert('Please login as an employer first');
+        if (!token) return showAlert('Authentication Required', 'Please login as an employer first', 'warning');
 
         try {
             const res = await fetch((process.env.REACT_APP_API || 'http://localhost:5000') + '/api/jobs', {
@@ -60,15 +61,15 @@ export default function PostJob() {
             });
 
             if (res.ok) {
-                alert('Job Posted Successfully!');
+                showAlert('Success', 'Job Posted Successfully!', 'success');
                 navigate('/employer');
             } else {
                 const d = await res.json();
-                alert(d.error || 'Error posting job');
+                showAlert('Error', d.error || 'Error posting job', 'error');
             }
         } catch (error) {
             console.error("Post error:", error);
-            alert('Failed to post job');
+            showAlert('Error', 'Failed to post job', 'error');
         }
     };
 

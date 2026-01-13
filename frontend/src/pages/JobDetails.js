@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { showAlert } from '../utils/swal';
 
 export default function JobDetails() {
     const { id } = useParams();
@@ -82,7 +83,7 @@ export default function JobDetails() {
 
         } catch (err) {
             console.error(err);
-            alert('Failed to save job');
+            showAlert('Error', 'Failed to save job', 'error');
         } finally {
             setSaveLoading(false);
         }
@@ -111,7 +112,7 @@ export default function JobDetails() {
             setResumeUrl(url);
         } catch (error) {
             console.error(error);
-            alert('Failed to upload resume');
+            showAlert('Error', 'Failed to upload resume', 'error');
         } finally {
             setUploading(false);
         }
@@ -125,7 +126,7 @@ export default function JobDetails() {
         }
 
         if (!resumeUrl) {
-            alert('Please provide a resume');
+            showAlert('Missing Resume', 'Please provide a resume', 'warning');
             return;
         }
 
@@ -149,7 +150,7 @@ export default function JobDetails() {
             // Keep resumeUrl in case they want to apply to others
         } catch (err) {
             setApplicationStatus('error');
-            alert(err.message);
+            showAlert('Error', err.message, 'error');
         } finally {
             setApplying(false);
         }

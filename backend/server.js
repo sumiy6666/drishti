@@ -41,6 +41,8 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/candidates', candidateRoutes);
+app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/test-email', require('./routes/test-email')); // Test email route
 
 app.get('/', (req, res) => res.send({ ok: true, message: 'Job Portal API running' }));
 
