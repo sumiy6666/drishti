@@ -13,10 +13,10 @@ exports.register = async (req, res) => {
     const hashed = await bcrypt.hash(password, 10);
     user = await User.create({ name, email, password: hashed, role, company });
     // send verification email
-    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
     const verifyUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify-email/${token}`;
     await mailer.send({ to: email, subject: 'Verify your email', html: `<p>Click <a href="${verifyUrl}">here</a> to verify your email</p>` });
-    const authToken = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '7d' });
+    const authToken = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
     res.json({ user: { id: user._id, name: user.name, email: user.email, role: user.role }, token: authToken });
   } catch (err) {
     console.error(err);
@@ -31,7 +31,7 @@ exports.login = async (req, res) => {
     if (!user) return res.status(400).json({ error: 'Invalid credentials' });
     const ok = await bcrypt.compare(password, user.password);
     if (!ok) return res.status(400).json({ error: 'Invalid credentials' });
-    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
     res.json({ user: { id: user._id, name: user.name, email: user.email, role: user.role, verified: user.verified }, token });
   } catch (err) {
     console.error(err);
