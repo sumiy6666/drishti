@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import Logo from '../components/Logo';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -44,14 +45,11 @@ export default function Login() {
 
       <div className="max-w-md w-full relative z-10">
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 mb-8 group">
-            <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-primary/30 group-hover:scale-110 transition-transform">
-              <span className="transform -rotate-12">K</span>
-            </div>
-            <span className="text-3xl font-bold text-dark tracking-tight">Konnectt</span>
+          <Link to="/" className="inline-flex items-center justify-center mb-8 group mx-auto">
+            <Logo variant="dark" size="large" />
           </Link>
-          <h2 className="text-3xl font-bold text-dark mb-2">Welcome Back</h2>
-          <p className="text-body">Sign in to continue your journey.</p>
+          <h2 className="text-3xl font-bold text-dark mb-2">Continue Your Career Journey</h2>
+          <p className="text-body">Sign in to manage applications, explore opportunities, and stay connected with employers.</p>
         </div>
 
         <div className="bg-white rounded-3xl p-8 md:p-10 shadow-card border border-gray-100 relative overflow-hidden">
@@ -79,6 +77,12 @@ export default function Login() {
 
             {err && <div className="p-4 bg-red-50 border border-red-100 rounded-xl text-red-500 text-sm text-center font-bold">{err}</div>}
 
+            <div className="flex justify-end">
+              <Link to="/forgot-password" title="Recover your password" className="text-sm font-bold text-primary hover:underline">
+                Forgot Password?
+              </Link>
+            </div>
+
             <button
               type="submit"
               className="w-full py-4 bg-primary text-white font-bold rounded-xl hover:bg-blue-700 transition-all shadow-button hover:-translate-y-1"
@@ -91,7 +95,7 @@ export default function Login() {
             <p className="text-body text-sm font-medium">
               Don't have an account?{' '}
               <Link to="/register" className="text-primary font-bold hover:underline transition-colors">
-                Create one now
+                Create your professional profile
               </Link>
             </p>
           </div>

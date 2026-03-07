@@ -18,6 +18,14 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import PostJob from './pages/PostJob';
 import JobApplications from './pages/JobApplications';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+import About from './pages/About';
+import Solutions from './pages/Solutions';
+import Careers from './pages/Careers';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import Terms from './pages/Terms';
+import CookiePolicy from './pages/CookiePolicy';
 
 export default function App() {
   return (
@@ -38,6 +46,14 @@ export default function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/solutions" element={<Solutions />} />
+          <Route path="/careers" element={<Careers />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/cookies" element={<CookiePolicy />} />
           <Route path="/jobs/:id/applications" element={<JobApplications />} />
         </Routes>
       </main>

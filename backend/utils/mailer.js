@@ -1,19 +1,42 @@
-const nodemailer = require('nodemailer');
+const AWS = require('aws-sdk');
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS
-  }
+AWS.config.update({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION || 'ap-south-1'
 });
 
+const ses = new AWS.SES({ apiVersion: '2010-12-01' });
+
 exports.send = async ({ to, subject, html, text }) => {
-  const info = await transporter.sendMail({
-    from: process.env.FROM_EMAIL || process.env.SMTP_USER,
-    to, subject, html, text
-  });
-  return info;
+  const params = {
+    Destination: {
+      ToAddresses: [to]
+    },
+    Message: {
+      Body: {
+        Html: {
+          Charset: "UTF-8",
+          Data: html
+        },
+        Text: {
+          Charset: "UTF-8",
+          Data: text || ""
+        }
+      },
+      Subject: {
+        Charset: 'UTF-8',
+        Data: subject
+      }
+    },
+    Source: process.env.FROM_EMAIL || 'no-reply@konnectt.in'
+  };
+
+  try {
+    const result = await ses.sendEmail(params).promise();
+    return result;
+  } catch (error) {
+    console.error("SES Send Error:", error);
+    throw error;
+  }
 };

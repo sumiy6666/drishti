@@ -34,8 +34,8 @@ export default function EmployerDashboard() {
 
         {/* Header */}
         <div className="mb-10 text-center md:text-left">
-          <h1 className="text-4xl font-bold text-dark mb-2">Employer Dashboard</h1>
-          <p className="text-secondary font-medium">Post new opportunities and manage your listings.</p>
+          <h1 className="text-4xl font-bold text-dark mb-2">Hiring Dashboard</h1>
+          <p className="text-secondary font-medium">Manage your job postings, track applicants, and build high-performance teams.</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -43,14 +43,14 @@ export default function EmployerDashboard() {
           {/* Post Job Action */}
           <div className="lg:col-span-1">
             <div className="bg-white border border-gray-100 p-8 rounded-3xl sticky top-32 shadow-card">
-              <h2 className="text-xl font-bold text-dark mb-4">Actions</h2>
-              <p className="text-body text-sm mb-6">Create a new job listing to find the perfect candidate for your company.</p>
+              <h2 className="text-xl font-bold text-dark mb-4">Quick Actions</h2>
+              <p className="text-body text-sm mb-6">Create new job postings and accelerate your hiring process.</p>
 
               <Link
                 to="/post-job"
                 className="block w-full py-4 bg-primary text-white text-center font-bold rounded-xl hover:bg-blue-700 transition-all shadow-button hover:-translate-y-0.5"
               >
-                + Post a New Job
+                POST A JOB
               </Link>
 
               <div className="mt-8 pt-8 border-t border-gray-100">

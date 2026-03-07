@@ -21,10 +21,12 @@ export default function Home() {
   }, []);
 
   const categories = [
-    { name: 'Design', icon: 'fa-pen-nib', count: 234 },
-    { name: 'Development', icon: 'fa-code', count: 156 },
-    { name: 'Marketing', icon: 'fa-bullhorn', count: 98 },
-    { name: 'Finance', icon: 'fa-chart-line', count: 45 },
+    { name: 'Technology & Engineering', icon: 'fa-microchip', count: 234 },
+    { name: 'Product & Design', icon: 'fa-palette', count: 156 },
+    { name: 'Sales, Marketing & Growth', icon: 'fa-chart-line', count: 98 },
+    { name: 'Finance & Strategy', icon: 'fa-calculator', count: 45 },
+    { name: 'Operations & Supply Chain', icon: 'fa-truck-loading', count: 32 },
+    { name: 'Human Capital & Administration', icon: 'fa-users-cog', count: 21 },
   ];
 
   return (
@@ -42,37 +44,18 @@ export default function Home() {
             {/* Left Content */}
             <div className="space-y-8">
               <div className="inline-block px-4 py-2 bg-blue-50 text-primary font-bold rounded-full text-sm tracking-wide uppercase">
-                {isEmployer ? '#1 Platform for Hiring' : '#1 Job Board for Hiring'}
+                Smarter Hiring. Stronger Careers. Accelerated Growth.
               </div>
               <h1 className="text-5xl md:text-7xl font-bold text-secondary leading-tight">
-                {isEmployer ? (
-                  <>
-                    Hire the <br />
-                    Best <span className="text-primary relative">Talent
-                      <svg className="absolute w-full h-3 -bottom-1 left-0 text-accent opacity-50" viewBox="0 0 100 10" preserveAspectRatio="none">
-                        <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="8" fill="none" />
-                      </svg>
-                    </span> <br />
-                    Fast
-                  </>
-                ) : (
-                  <>
-                    Give a head <br />
-                    start to your <br />
-                    <span className="text-primary relative">
-                      Career
-                      <svg className="absolute w-full h-3 -bottom-1 left-0 text-accent opacity-50" viewBox="0 0 100 10" preserveAspectRatio="none">
-                        <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="8" fill="none" />
-                      </svg>
-                    </span>
-                  </>
-                )}
+                Empowering Careers. <br />
+                Enabling Smart <span className="text-primary relative">Hiring
+                  <svg className="absolute w-full h-3 -bottom-1 left-0 text-accent opacity-50" viewBox="0 0 100 10" preserveAspectRatio="none">
+                    <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="8" fill="none" />
+                  </svg>
+                </span>
               </h1>
               <p className="text-lg text-body leading-relaxed max-w-lg">
-                {isEmployer
-                  ? "Connect with thousands of skilled professionals ready to join your team. Post jobs and find the perfect match today."
-                  : "Find the perfect job that fits your life. We have thousands of opportunities waiting for you."
-                }
+                Connecting ambitious professionals with forward-thinking companies through smart HR solutions and modern hiring technology.
               </p>
 
               <div className="bg-white p-3 rounded-full shadow-xl shadow-gray-200/50 border border-gray-100 flex items-center max-w-xl">
@@ -162,18 +145,18 @@ export default function Home() {
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-secondary mb-4">Popular Categories</h2>
-            <p className="text-body max-w-2xl mx-auto">Browse {isEmployer ? "candidates" : "jobs"} by category to find the perfect fit.</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-secondary mb-4">Strategic Career Domains</h2>
+            <p className="text-body max-w-2xl mx-auto">Discover opportunities across high-growth industries and core business functions.</p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {categories.map((cat) => (
               <div key={cat.name} className="bg-white p-8 rounded-2xl border border-gray-100 hover:shadow-card-hover hover:border-primary/20 transition-all duration-300 group cursor-pointer text-center hover:-translate-y-1">
                 <div className="w-16 h-16 mx-auto bg-blue-50 rounded-full flex items-center justify-center text-primary text-2xl mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
                   <i className={`fas ${cat.icon}`}></i>
                 </div>
                 <h3 className="font-bold text-secondary text-lg mb-2 group-hover:text-primary transition-colors">{cat.name}</h3>
-                <p className="text-sm text-gray-400">{cat.count} {isEmployer ? "Candidates" : "Jobs"}</p>
+                <p className="text-sm text-gray-400">{cat.count}+ {isEmployer ? "Candidates" : "Jobs"}</p>
               </div>
             ))}
           </div>
@@ -186,11 +169,11 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
               <div>
-                <h2 className="text-3xl md:text-4xl font-bold text-secondary mb-4">Featured Jobs</h2>
-                <p className="text-body max-w-2xl">Hand-picked jobs just for you.</p>
+                <h2 className="text-3xl md:text-4xl font-bold text-secondary mb-4">Curated Opportunities</h2>
+                <p className="text-body max-w-2xl">Carefully selected roles from high-growth companies across industries.</p>
               </div>
               <Link to="/jobs" className="px-6 py-3 border border-gray-200 rounded-full text-secondary font-bold hover:bg-white hover:shadow-sm transition-all">
-                View All Jobs <i className="fas fa-arrow-right ml-2"></i>
+                Explore All Opportunities <i className="fas fa-arrow-right ml-2"></i>
               </Link>
             </div>
 
@@ -207,18 +190,18 @@ export default function Home() {
       <section className="py-24 bg-light-blue relative overflow-hidden">
         <div className="absolute top-0 right-0 w-1/3 h-full bg-primary/5 skew-x-12 pointer-events-none" />
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold text-dark mb-6">Ready to Start Your Journey?</h2>
+          <h2 className="text-4xl md:text-5xl font-bold text-dark mb-6">Let’s Build What’s Next.</h2>
           <p className="text-body text-lg mb-10 max-w-2xl mx-auto">
-            Join thousands of professionals who have found their dream jobs through Ogeko.
+            Connecting ambitious professionals with forward-thinking organizations through strategic hiring and human capital solutions.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             {!user && (
               <Link to="/register" className="px-10 py-4 bg-primary text-white font-bold rounded-full hover:bg-green-600 transition-all shadow-lg shadow-primary/30 hover:-translate-y-1">
-                Get Started Now
+                Explore Opportunities
               </Link>
             )}
             <Link to="/contact" className="px-10 py-4 bg-white text-dark border border-gray-200 font-bold rounded-full hover:bg-gray-50 transition-all hover:-translate-y-1">
-              Contact Us
+              Partner With Konnectt
             </Link>
           </div>
         </div>

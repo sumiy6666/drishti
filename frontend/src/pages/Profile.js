@@ -17,7 +17,14 @@ export default function Profile() {
         summary: '',
         linkedin: '',
         portfolio: '',
-        resume: ''
+        resume: '',
+        professionalTitle: '',
+        experienceLevel: '',
+        preferredRole: '',
+        preferredLocation: '',
+        expectedSalary: '',
+        workMode: '',
+        availability: ''
     });
     const [isParsing, setIsParsing] = useState(false);
 
@@ -38,7 +45,14 @@ export default function Profile() {
                 summary: parsed.summary || '',
                 linkedin: parsed.linkedin || '',
                 portfolio: parsed.portfolio || '',
-                resume: parsed.resume || ''
+                resume: parsed.resume || '',
+                professionalTitle: parsed.professionalTitle || '',
+                experienceLevel: parsed.experienceLevel || '',
+                preferredRole: parsed.preferredRole || '',
+                preferredLocation: parsed.preferredLocation || '',
+                expectedSalary: parsed.expectedSalary || '',
+                workMode: parsed.workMode || '',
+                availability: parsed.availability || ''
             });
         }
     }, []);
@@ -166,6 +180,9 @@ export default function Profile() {
                             </div>
                             <div className="mb-2 flex-1">
                                 <h1 className="text-3xl font-bold text-dark mb-1">{user.name}</h1>
+                                {user.role === 'jobseeker' && user.professionalTitle && (
+                                    <p className="text-secondary font-bold text-lg mb-2">{user.professionalTitle}</p>
+                                )}
                                 <p className="text-primary text-sm capitalize font-bold bg-primary/10 px-4 py-1.5 rounded-full inline-block">{user.role}</p>
                             </div>
                             <div className="mb-2">
@@ -260,6 +277,33 @@ export default function Profile() {
                                         />
                                     </div>
 
+                                    {user.role === 'jobseeker' && (
+                                        <>
+                                            <div>
+                                                <label className="block text-sm font-bold text-dark mb-2">Professional Title</label>
+                                                <input
+                                                    type="text"
+                                                    name="professionalTitle"
+                                                    value={formData.professionalTitle}
+                                                    onChange={handleChange}
+                                                    placeholder="e.g. Product Manager | 5+ Years in FinTech"
+                                                    className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all hover:bg-white"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-bold text-dark mb-2">Experience Level</label>
+                                                <input
+                                                    type="text"
+                                                    name="experienceLevel"
+                                                    value={formData.experienceLevel}
+                                                    onChange={handleChange}
+                                                    placeholder="e.g. Mid-Level, Senior"
+                                                    className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all hover:bg-white"
+                                                />
+                                            </div>
+                                        </>
+                                    )}
+
                                     {user.role === 'employer' && (
                                         <div className="md:col-span-2">
                                             <label className="block text-sm font-bold text-dark mb-2">Company Name</label>
@@ -325,6 +369,72 @@ export default function Profile() {
                                                     placeholder="Degrees, Universities, Years..."
                                                     className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all hover:bg-white"
                                                 />
+                                            </div>
+
+                                            <div className="md:col-span-2 mt-6">
+                                                <h3 className="text-lg font-bold text-dark mb-4 border-b border-gray-100 pb-2">Career Preferences</h3>
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-bold text-dark mb-2">Preferred Job Role</label>
+                                                <input
+                                                    type="text"
+                                                    name="preferredRole"
+                                                    value={formData.preferredRole}
+                                                    onChange={handleChange}
+                                                    placeholder="e.g. Senior Product Manager"
+                                                    className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all hover:bg-white"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-bold text-dark mb-2">Preferred Location</label>
+                                                <input
+                                                    type="text"
+                                                    name="preferredLocation"
+                                                    value={formData.preferredLocation}
+                                                    onChange={handleChange}
+                                                    placeholder="e.g. Remote, Mumbai"
+                                                    className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all hover:bg-white"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-bold text-dark mb-2">Expected Salary</label>
+                                                <input
+                                                    type="text"
+                                                    name="expectedSalary"
+                                                    value={formData.expectedSalary}
+                                                    onChange={handleChange}
+                                                    placeholder="e.g. ₹25 - ₹35 LPA"
+                                                    className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-dark placeholder-gray-400 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all hover:bg-white"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-bold text-dark mb-2">Work Mode</label>
+                                                <select
+                                                    name="workMode"
+                                                    value={formData.workMode}
+                                                    onChange={handleChange}
+                                                    className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-dark focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all hover:bg-white cursor-pointer"
+                                                >
+                                                    <option value="">Select Work Mode</option>
+                                                    <option value="Remote">Remote</option>
+                                                    <option value="Hybrid">Hybrid</option>
+                                                    <option value="On-site">On-site</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-bold text-dark mb-2">Availability</label>
+                                                <select
+                                                    name="availability"
+                                                    value={formData.availability}
+                                                    onChange={handleChange}
+                                                    className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-dark focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all hover:bg-white cursor-pointer"
+                                                >
+                                                    <option value="">Select Availability</option>
+                                                    <option value="Immediate">Immediate</option>
+                                                    <option value="30 days">30 days</option>
+                                                    <option value="60 days">60 days</option>
+                                                </select>
                                             </div>
 
                                             <div className="md:col-span-2 mt-6">
@@ -404,19 +514,39 @@ export default function Profile() {
                                         </div>
                                     </div>
 
-                                    {user.role === 'jobseeker' && (formData.linkedin || formData.portfolio) && (
+                                    {user.role === 'jobseeker' && (formData.preferredRole || formData.preferredLocation || formData.expectedSalary || formData.workMode || formData.availability) && (
                                         <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
-                                            <h3 className="text-xs font-bold text-secondary uppercase tracking-wider mb-4">Links</h3>
-                                            <div className="space-y-3 text-sm">
-                                                {formData.linkedin && (
-                                                    <a href={formData.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary hover:underline truncate font-bold">
-                                                        <i className="fab fa-linkedin"></i> LinkedIn Profile
-                                                    </a>
+                                            <h3 className="text-xs font-bold text-secondary uppercase tracking-wider mb-4">Career Preferences</h3>
+                                            <div className="space-y-4 text-sm">
+                                                {formData.preferredRole && (
+                                                    <div className="flex justify-between gap-2">
+                                                        <span className="text-gray-400">Role</span>
+                                                        <span className="font-bold text-dark text-right">{formData.preferredRole}</span>
+                                                    </div>
                                                 )}
-                                                {formData.portfolio && (
-                                                    <a href={formData.portfolio} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary hover:underline truncate font-bold">
-                                                        <i className="fas fa-globe"></i> Portfolio / Website
-                                                    </a>
+                                                {formData.preferredLocation && (
+                                                    <div className="flex justify-between gap-2">
+                                                        <span className="text-gray-400">Location</span>
+                                                        <span className="font-bold text-dark text-right">{formData.preferredLocation}</span>
+                                                    </div>
+                                                )}
+                                                {formData.expectedSalary && (
+                                                    <div className="flex justify-between gap-2">
+                                                        <span className="text-gray-400">Salary</span>
+                                                        <span className="font-bold text-dark text-right">{formData.expectedSalary}</span>
+                                                    </div>
+                                                )}
+                                                {formData.workMode && (
+                                                    <div className="flex justify-between gap-2">
+                                                        <span className="text-gray-400">Mode</span>
+                                                        <span className="font-bold text-dark text-right">{formData.workMode}</span>
+                                                    </div>
+                                                )}
+                                                {formData.availability && (
+                                                    <div className="flex justify-between gap-2">
+                                                        <span className="text-gray-400">Availability</span>
+                                                        <span className="font-bold text-dark text-right">{formData.availability}</span>
+                                                    </div>
                                                 )}
                                             </div>
                                         </div>

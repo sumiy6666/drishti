@@ -10,6 +10,7 @@ export default function Jobs() {
     search: '',
     location: '',
     type: [],
+    postedWithin: '', // New filter
     minSalary: 0,
     page: 1
   });
@@ -30,6 +31,7 @@ export default function Jobs() {
     if (filters.search) params.append('q', filters.search);
     if (filters.location) params.append('location', filters.location);
     if (filters.type.length > 0) params.append('type', filters.type.join(','));
+    if (filters.postedWithin) params.append('postedWithin', filters.postedWithin);
     if (filters.minSalary > 0) params.append('minSalary', filters.minSalary);
     params.append('page', filters.page);
 
@@ -75,17 +77,12 @@ export default function Jobs() {
         {/* Header */}
         <div className="mb-12 text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-dark mb-4 tracking-tight">
-            Find Your Next Career
+            Find Opportunities That Move Your Career Forward
           </h1>
           <p className="text-body max-w-2xl mx-auto text-lg">
-            Browse thousands of job openings from top companies.
+            Explore verified roles from leading organizations across industries.
           </p>
 
-          {/* Page Header */}
-          <div className="mb-10">
-            <h1 className="text-3xl font-bold text-secondary mb-2">Find Your Dream Job</h1>
-            <p className="text-body">Browse thousands of job openings and find the perfect fit.</p>
-          </div>
 
           <div className="flex flex-col lg:flex-row gap-8">
 
@@ -124,11 +121,11 @@ export default function Jobs() {
                   </div>
                 </div>
 
-                {/* Job Type Checkboxes */}
+                {/* Work Mode Checkboxes */}
                 <div className="mb-6">
-                  <label className="block text-sm font-bold text-secondary mb-3">Job Type</label>
+                  <label className="block text-sm font-bold text-secondary mb-3">Work Mode</label>
                   <div className="space-y-2">
-                    {['Full Time', 'Part Time', 'Remote', 'Contract', 'Internship'].map(type => (
+                    {['On-site - Full Time', 'Part-Time', 'Hybrid', 'Remote', 'Contractual'].map(type => (
                       <label key={type} className="flex items-center gap-3 cursor-pointer group">
                         <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${filters.type.includes(type) ? 'bg-primary border-primary' : 'border-gray-300 bg-white group-hover:border-primary'}`}>
                           {filters.type.includes(type) && <i className="fas fa-check text-white text-xs"></i>}
@@ -140,6 +137,33 @@ export default function Jobs() {
                           onChange={() => handleTypeToggle(type)}
                         />
                         <span className="text-body text-sm group-hover:text-primary transition-colors">{type}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Posted Within Radio */}
+                <div className="mb-6">
+                  <label className="block text-sm font-bold text-secondary mb-3">Posted Within</label>
+                  <div className="space-y-2">
+                    {[
+                      { label: 'All Time', value: '' },
+                      { label: 'Last 24 Hours', value: '24h' },
+                      { label: 'Last 7 Days', value: '7d' },
+                      { label: 'Last 30 Days', value: '30d' }
+                    ].map(opt => (
+                      <label key={opt.value} className="flex items-center gap-3 cursor-pointer group">
+                        <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${filters.postedWithin === opt.value ? 'bg-primary border-primary' : 'border-gray-300 bg-white group-hover:border-primary'}`}>
+                          {filters.postedWithin === opt.value && <div className="w-2 h-2 rounded-full bg-white"></div>}
+                        </div>
+                        <input
+                          type="radio"
+                          className="hidden"
+                          name="postedWithin"
+                          checked={filters.postedWithin === opt.value}
+                          onChange={() => handleFilterChange('postedWithin', opt.value)}
+                        />
+                        <span className="text-body text-sm group-hover:text-primary transition-colors">{opt.label}</span>
                       </label>
                     ))}
                   </div>

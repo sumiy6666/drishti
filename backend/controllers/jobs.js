@@ -7,13 +7,26 @@ exports.list = async (req, res) => {
     console.log("Jobs List API Hit");
     console.log("Query Params:", req.query);
 
-    const { q, location, skills, page = 1, limit = 10, minSalary, maxSalary, remote } = req.query;
+    const { q, location, skills, page = 1, limit = 10, minSalary, maxSalary, remote, type, postedWithin } = req.query;
     // const filter = { status: 'open' }; // Temporarily removed for debugging
     const filter = {};
     if (location) filter.location = { $regex: location, $options: 'i' };
     if (skills) {
       const skillsArray = skills.split(',').map(skill => new RegExp(skill.trim(), 'i'));
       filter.skills = { $in: skillsArray };
+    }
+    if (type) {
+      const types = type.split(',');
+      filter.type = { $in: types };
+    }
+    if (postedWithin) {
+      const now = new Date();
+      let dateLimit;
+      if (postedWithin === '24h') dateLimit = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+      else if (postedWithin === '7d') dateLimit = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      else if (postedWithin === '30d') dateLimit = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+      if (dateLimit) filter.createdAt = { $gte: dateLimit };
     }
     if (remote !== undefined) filter.remote = remote === 'true';
     if (minSalary) filter.salaryMin = { $gte: parseInt(minSalary) };

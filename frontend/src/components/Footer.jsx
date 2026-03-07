@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Logo from './Logo';
 
 export default function Footer() {
   return (
@@ -9,14 +10,11 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           {/* Brand Column */}
           <div className="space-y-6">
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-primary/30">
-                <span className="transform -rotate-12">K</span>
-              </div>
-              <h4 className="font-bold text-white text-2xl tracking-tight">Konnectt</h4>
+            <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+              <Logo variant="light" size="small" />
             </div>
             <p className="text-gray-300 leading-relaxed">
-              A leading global provider of recruitment and consultancy solutions.
+              A global human capital partner, delivering end-to-end talent acquisition and workforce solutions that empower organizations to scale and professionals to thrive across industries and geographies.
             </p>
             <div className="flex gap-4">
               {['facebook-f', 'twitter', 'instagram', 'linkedin-in'].map(icon => (
@@ -31,11 +29,15 @@ export default function Footer() {
           <div>
             <h4 className="font-bold text-white text-lg mb-8">Company</h4>
             <ul className="space-y-4">
-              {['About Us', 'Our Services', 'Meet The Team', 'Careers'].map(item => (
-                <li key={item}>
-                  <Link to="#" className="text-gray-300 hover:text-primary transition-colors flex items-center gap-2 group">
+              {[
+                { name: 'About Konnectt', path: '/about' },
+                { name: 'Our Solutions', path: '/solutions' },
+                { name: 'Careers at Konnectt', path: '/careers' }
+              ].map(item => (
+                <li key={item.name}>
+                  <Link to={item.path} className="text-gray-300 hover:text-primary transition-colors flex items-center gap-2 group">
                     <span className="w-1.5 h-1.5 rounded-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity"></span>
-                    {item}
+                    {item.name}
                   </Link>
                 </li>
               ))}
@@ -44,13 +46,17 @@ export default function Footer() {
 
           {/* Links Column 2 */}
           <div>
-            <h4 className="font-bold text-white text-lg mb-8">Useful Links</h4>
+            <h4 className="font-bold text-white text-lg mb-8">Compliance & Support</h4>
             <ul className="space-y-4">
-              {['Privacy Policy', 'Terms of Service', 'Cookie Policy', 'Contact Us'].map(item => (
-                <li key={item}>
-                  <Link to="#" className="text-gray-300 hover:text-primary transition-colors flex items-center gap-2 group">
+              {[
+                { name: 'Privacy Policy', path: '/privacy' },
+                { name: 'Terms of Service', path: '/terms' },
+                { name: 'Cookie Policy', path: '/cookies' }
+              ].map(item => (
+                <li key={item.name}>
+                  <Link to={item.path} className="text-gray-300 hover:text-primary transition-colors flex items-center gap-2 group">
                     <span className="w-1.5 h-1.5 rounded-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity"></span>
-                    {item}
+                    {item.name}
                   </Link>
                 </li>
               ))}
@@ -59,18 +65,27 @@ export default function Footer() {
 
           {/* Newsletter Column */}
           <div>
-            <h4 className="font-bold text-white text-lg mb-8">Newsletter</h4>
-            <p className="text-gray-300 mb-6">Subscribe to get the latest job updates and news.</p>
-            <form className="relative">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="w-full px-6 py-4 rounded-full bg-white/10 border border-white/10 focus:ring-2 focus:ring-primary outline-none text-white placeholder-gray-400"
-              />
-              <button className="absolute right-1.5 top-1.5 w-11 h-11 rounded-full bg-primary text-white flex items-center justify-center hover:bg-blue-600 transition-colors shadow-lg shadow-primary/30">
-                <i className="fas fa-paper-plane"></i>
-              </button>
-            </form>
+            <h4 className="font-bold text-white text-lg mb-8">Customer Support</h4>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 text-gray-300">
+                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-primary">
+                  <i className="fas fa-envelope"></i>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400">Email us at</p>
+                  <a href="mailto:info@konnectt.in" className="font-bold text-white hover:text-primary transition-colors">info@konnectt.in</a>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 text-gray-300">
+                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-primary">
+                  <i className="fas fa-headset"></i>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400">24/7 Support</p>
+                  <p className="font-bold text-white">Dedicated Assistance</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

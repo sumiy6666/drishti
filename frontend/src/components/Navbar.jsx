@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import NotificationBell from './NotificationBell';
+import Logo from './Logo';
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -37,10 +38,7 @@ export default function Navbar() {
 
           {/* Logo */}
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-primary/30">
-              <span className="transform -rotate-12">K</span>
-            </div>
-            <span className="text-2xl font-bold text-secondary tracking-tight">Konnectt</span>
+            <Logo variant="dark" size="small" />
           </div>
 
           {/* Desktop Nav */}
@@ -53,7 +51,7 @@ export default function Navbar() {
             ] : [
               { name: 'Home', path: '/' },
               { name: 'Find Jobs', path: '/jobs' },
-              { name: 'My Applications', path: '/my-applications' },
+              ...(user?.role === 'jobseeker' ? [{ name: 'My Applications', path: '/my-applications' }] : []),
             ]).map((link) => (
               <Link
                 key={link.name}

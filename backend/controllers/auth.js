@@ -10,12 +10,39 @@ exports.register = async (req, res) => {
     const { name, email, password, role, company } = req.body;
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ error: 'User exists' });
+
     const hashed = await bcrypt.hash(password, 10);
-    user = await User.create({ name, email, password: hashed, role, company });
-    // send verification email
-    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
-    const verifyUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify-email/${token}`;
-    await mailer.send({ to: email, subject: 'Verify your email', html: `<p>Click <a href="${verifyUrl}">here</a> to verify your email</p>` });
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpires = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+
+    user = await User.create({
+      name, email, password: hashed, role, company,
+      otp, otpExpires
+    });
+
+    try {
+      await mailer.send({
+        to: email,
+        subject: 'Verify your Konnectt Account',
+        html: `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 12px;">
+            <h2 style="color: #2563eb;">Welcome to Konnectt!</h2>
+            <p>Please use the following One-Time Password (OTP) to verify your account. This code is valid for 5 minutes.</p>
+            <div style="background: #f3f4f6; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
+              <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #1f2937;">${otp}</span>
+            </div>
+            <p>If you didn't create an account with us, please ignore this email.</p>
+          </div>
+        `,
+        text: `Your Konnectt verification code is: ${otp}`
+      });
+    } catch (mailErr) {
+      // Rollback: delete the created user if email fails
+      await User.findByIdAndDelete(user._id);
+      console.error("Registration Mail Error:", mailErr);
+      return res.status(500).json({ error: 'Failed to send verification email. Please try again.' });
+    }
+
     const authToken = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
     res.json({ user: { id: user._id, name: user.name, email: user.email, role: user.role }, token: authToken });
   } catch (err) {
@@ -76,14 +103,53 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
-exports.verifyEmail = async (req, res) => {
+exports.verifyOtp = async (req, res) => {
   try {
-    const token = req.params.token;
-    const payload = jwt.verify(token, JWT_SECRET);
-    await User.findByIdAndUpdate(payload.id, { verified: true });
-    res.send({ ok: true, message: 'Email verified' });
+    const { email, otp, type } = req.body; // type: 'register' or 'reset'
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ error: 'User not found' });
+
+    if (user.otp !== otp || user.otpExpires < Date.now()) {
+      return res.status(400).json({ error: 'Invalid or expired OTP' });
+    }
+
+    if (type === 'register') {
+      user.verified = true;
+    }
+
+    user.otp = undefined;
+    user.otpExpires = undefined;
+    await user.save();
+
+    res.json({ ok: true, message: 'OTP verified' });
   } catch (err) {
-    res.status(400).send({ error: 'Invalid or expired token' });
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+exports.resendOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ error: 'User not found' });
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.otp = otp;
+    user.otpExpires = new Date(Date.now() + 5 * 60 * 1000);
+    await user.save();
+
+    await mailer.send({
+      to: email,
+      subject: 'Your Konnectt OTP',
+      html: `<p>Your new OTP is: <strong>${otp}</strong>. Valid for 5 minutes.</p>`,
+      text: `Your new Konnectt OTP is: ${otp}`
+    });
+
+    res.json({ ok: true, message: 'OTP resent' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
   }
 };
 
@@ -91,26 +157,56 @@ exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ error: 'No user' });
-    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
-    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password/${token}`;
-    await mailer.send({ to: email, subject: 'Password reset', html: `<p>Reset: <a href="${resetUrl}">${resetUrl}</a></p>` });
+    if (!user) return res.status(400).json({ error: 'User not found' });
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.otp = otp;
+    user.otpExpires = new Date(Date.now() + 5 * 60 * 1000);
+    await user.save();
+
+    await mailer.send({
+      to: email,
+      subject: 'Password Reset OTP - Konnectt',
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 12px;">
+          <h2 style="color: #2563eb;">Password Reset Request</h2>
+          <p>You requested a password reset. Use the code below to set a new password. This code is valid for 5 minutes.</p>
+          <div style="background: #f3f4f6; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
+            <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #1f2937;">${otp}</span>
+          </div>
+          <p>If you didn't request this, please ignore this email or contact support if you have concerns.</p>
+        </div>
+      `,
+      text: `Your password reset OTP is: ${otp}`
+    });
+
     res.json({ ok: true });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Server error' });
   }
 };
 
 exports.resetPassword = async (req, res) => {
   try {
-    const token = req.params.token;
-    const { password } = req.body;
-    const payload = jwt.verify(token, JWT_SECRET);
+    const { email, otp, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ error: 'User not found' });
+
+    if (user.otp !== otp || user.otpExpires < Date.now()) {
+      return res.status(400).json({ error: 'Invalid or expired OTP' });
+    }
+
     const hashed = await bcrypt.hash(password, 10);
-    await User.findByIdAndUpdate(payload.id, { password: hashed });
+    user.password = hashed;
+    user.otp = undefined;
+    user.otpExpires = undefined;
+    await user.save();
+
     res.json({ ok: true });
   } catch (err) {
-    res.status(400).json({ error: 'Invalid or expired token' });
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
   }
 };
 
