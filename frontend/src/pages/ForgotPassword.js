@@ -24,9 +24,9 @@ export default function ForgotPassword() {
                 throw new Error(data.error || 'Request failed');
             }
             setSent(true);
-            // Automatically navigate to reset password page after a brief delay or show instructions
+            // Automatically navigate to unified verification page
             setTimeout(() => {
-                navigate('/reset-password', { state: { email } });
+                navigate('/verify-otp', { state: { email, type: 'reset' } });
             }, 2000);
         } catch (err) {
             setErr(err.message);

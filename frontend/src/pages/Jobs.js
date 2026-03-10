@@ -11,7 +11,6 @@ export default function Jobs() {
     location: '',
     type: [],
     postedWithin: '', // New filter
-    minSalary: 0,
     page: 1
   });
 
@@ -32,7 +31,6 @@ export default function Jobs() {
     if (filters.location) params.append('location', filters.location);
     if (filters.type.length > 0) params.append('type', filters.type.join(','));
     if (filters.postedWithin) params.append('postedWithin', filters.postedWithin);
-    if (filters.minSalary > 0) params.append('minSalary', filters.minSalary);
     params.append('page', filters.page);
 
     try {
@@ -169,24 +167,6 @@ export default function Jobs() {
                   </div>
                 </div>
 
-                {/* Salary Range */}
-                <div>
-                  <label className="block text-sm font-bold text-secondary mb-3">Minimum Salary</label>
-                  <input
-                    type="range"
-                    min="0"
-                    max="200000"
-                    step="5000"
-                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary"
-                    value={filters.minSalary || 0}
-                    onChange={(e) => handleFilterChange('minSalary', parseInt(e.target.value))}
-                  />
-                  <div className="flex justify-between text-xs text-body mt-2 font-medium">
-                    <span>${(filters.minSalary || 0).toLocaleString()}</span>
-                    <span>$200k+</span>
-                  </div>
-                </div>
-
               </div>
             </div>
 
@@ -274,6 +254,6 @@ export default function Jobs() {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 }

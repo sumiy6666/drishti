@@ -20,6 +20,7 @@ import PostJob from './pages/PostJob';
 import JobApplications from './pages/JobApplications';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import VerifyOtp from './pages/VerifyOtp';
 import About from './pages/About';
 import Solutions from './pages/Solutions';
 import Careers from './pages/Careers';
@@ -48,6 +49,7 @@ export default function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/verify-otp" element={<VerifyOtp />} />
           <Route path="/about" element={<About />} />
           <Route path="/solutions" element={<Solutions />} />
           <Route path="/careers" element={<Careers />} />

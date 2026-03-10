@@ -31,7 +31,12 @@ export default function Login() {
       }
       window.location.reload();
     } catch (err) {
-      setErr(err.message);
+      if (err.message.includes('verify your account')) {
+        // Redirect to OTP verification
+        navigate('/verify-otp', { state: { email, type: 'register' } });
+      } else {
+        setErr(err.message);
+      }
     }
   };
 

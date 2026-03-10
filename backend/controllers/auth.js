@@ -9,16 +9,30 @@ exports.register = async (req, res) => {
   try {
     const { name, email, password, role, company } = req.body;
     let user = await User.findOne({ email });
-    if (user) return res.status(400).json({ error: 'User exists' });
+
+    if (user && user.verified) {
+      return res.status(400).json({ error: 'User already exists and is verified' });
+    }
 
     const hashed = await bcrypt.hash(password, 10);
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpires = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+    const otpExpires = new Date(Date.now() + 5 * 60 * 1000);
 
-    user = await User.create({
-      name, email, password: hashed, role, company,
-      otp, otpExpires
-    });
+    if (user) {
+      // Update existing unverified user
+      user.name = name;
+      user.password = hashed;
+      user.role = role;
+      user.company = company;
+      user.otp = otp;
+      user.otpExpires = otpExpires;
+      await user.save();
+    } else {
+      user = await User.create({
+        name, email, password: hashed, role, company,
+        otp, otpExpires
+      });
+    }
 
     try {
       await mailer.send({
@@ -43,8 +57,7 @@ exports.register = async (req, res) => {
       return res.status(500).json({ error: 'Failed to send verification email. Please try again.' });
     }
 
-    const authToken = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
-    res.json({ user: { id: user._id, name: user.name, email: user.email, role: user.role }, token: authToken });
+    res.json({ message: 'Registration successful. Please verify your email.', email: user.email });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
@@ -58,6 +71,14 @@ exports.login = async (req, res) => {
     if (!user) return res.status(400).json({ error: 'Invalid credentials' });
     const ok = await bcrypt.compare(password, user.password);
     if (!ok) return res.status(400).json({ error: 'Invalid credentials' });
+    if (!user.verified) {
+      return res.status(403).json({
+        error: 'Please verify your account first',
+        email: user.email,
+        unverified: true
+      });
+    }
+
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
     res.json({ user: { id: user._id, name: user.name, email: user.email, role: user.role, verified: user.verified }, token });
   } catch (err) {
@@ -121,7 +142,22 @@ exports.verifyOtp = async (req, res) => {
     user.otpExpires = undefined;
     await user.save();
 
-    res.json({ ok: true, message: 'OTP verified' });
+    // Issue token immediately - if OTP is correct, identity is confirmed
+    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
+
+    res.json({
+      ok: true,
+      message: 'OTP verified',
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        verified: user.verified
+      }
+    });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
